@@ -4,24 +4,14 @@
 ------------------------------------------------------------- -->
 
 <script>
-  /* -----------------------------------------
-     SECTION: Imports
-     PURPOSE: Load splash + chat layers
-  ----------------------------------------- */
   import { onMount } from "svelte";
   import Splash from "$lib/ui/Splash.svelte";
-  import Chat from "$lib/ui/Chat.svelte";   // <-- Correct path
 
-  /* -----------------------------------------
-     SECTION: State
-     PURPOSE: Toggle splash → chat transition
-  ----------------------------------------- */
+  /* FIXED: Correct, case-accurate path */
+  import Chat from "$lib/chat/Chat.svelte";
+
   let showSplash = true;
 
-  /* -----------------------------------------
-     SECTION: Lifecycle
-     PURPOSE: Fade-out timer for the splash
-  ----------------------------------------- */
   onMount(() => {
     setTimeout(() => {
       showSplash = false;
@@ -30,7 +20,6 @@
 </script>
 
 <style>
-  /* Fullscreen wrapper */
   .root {
     width: 100%;
     height: 100vh;
@@ -51,16 +40,11 @@
   }
 </style>
 
-<!-- ------------------------------------------------------------
-     UI LAYERS
-------------------------------------------------------------- -->
 <div class="root">
-  <!-- Splash Layer -->
   <div class="fade {showSplash ? '' : 'hidden'}">
     <Splash />
   </div>
 
-  <!-- Chat Layer -->
   {#if !showSplash}
     <Chat
       messages={[
