@@ -10,9 +10,7 @@
   ----------------------------------------- */
   import { onMount } from "svelte";
   import Splash from "$lib/ui/Splash.svelte";
-
-  // FIXED: Corrected incorrect path "$lib/chat/Chat.svelte"
-  import Chat from "$lib/ui/Chat.svelte";
+  import Chat from "$lib/ui/Chat.svelte";   // <-- Correct path
 
   /* -----------------------------------------
      SECTION: State
@@ -57,14 +55,18 @@
      UI LAYERS
 ------------------------------------------------------------- -->
 <div class="root">
+  <!-- Splash Layer -->
   <div class="fade {showSplash ? '' : 'hidden'}">
     <Splash />
   </div>
 
+  <!-- Chat Layer -->
   {#if !showSplash}
-    <Chat messages={[
-      { role: "wolfie", text: "Pack Chat is warming up…" },
-      { role: "system", text: "UI shell linked successfully." }
-    ]}/>
+    <Chat
+      messages={[
+        { role: "wolfie", text: "Pack Chat is warming up…" },
+        { role: "system", text: "UI shell linked successfully." }
+      ]}
+    />
   {/if}
 </div>
