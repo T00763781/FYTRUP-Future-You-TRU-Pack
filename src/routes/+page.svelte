@@ -1,4 +1,3 @@
------------ FILE: src/routes/+page.svelte (BEGIN) -----------
 <script>
   import { onMount } from "svelte";
 
@@ -62,4 +61,3 @@
     <p>This content will be replaced when chat and map layers land.</p>
   </div>
 </div>
------------ FILE: src/routes/+page.svelte (END) -----------
