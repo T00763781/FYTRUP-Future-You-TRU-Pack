@@ -4,14 +4,26 @@
 ------------------------------------------------------------- -->
 
 <script>
+  /* -----------------------------------------
+     SECTION: Imports
+     PURPOSE: Load splash + chat layers
+  ----------------------------------------- */
   import { onMount } from "svelte";
   import Splash from "$lib/ui/Splash.svelte";
 
-  /* FIXED: Correct, case-accurate path */
+  // CORRECTED — proper location + case sensitivity
   import Chat from "$lib/chat/Chat.svelte";
 
+  /* -----------------------------------------
+     SECTION: State
+     PURPOSE: Toggle splash → chat transition
+  ----------------------------------------- */
   let showSplash = true;
 
+  /* -----------------------------------------
+     SECTION: Lifecycle
+     PURPOSE: Fade-out timer for the splash
+  ----------------------------------------- */
   onMount(() => {
     setTimeout(() => {
       showSplash = false;
@@ -46,11 +58,9 @@
   </div>
 
   {#if !showSplash}
-    <Chat
-      messages={[
-        { role: "wolfie", text: "Pack Chat is warming up…" },
-        { role: "system", text: "UI shell linked successfully." }
-      ]}
-    />
+    <Chat messages={[
+      { role: "wolfie", text: "Pack Chat is warming up…" },
+      { role: "system", text: "UI shell linked successfully." }
+    ]}/>
   {/if}
 </div>
