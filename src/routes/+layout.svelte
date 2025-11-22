@@ -1,10 +1,10 @@
------------ FILE: src/routes/+layout.svelte (BEGIN) -----------
 <script>
   import { onMount } from "svelte";
 
+  export const prerender = true;
+
   let viewportHeight = "100vh";
 
-  // Adjust viewport height on mobile to prevent keyboard jump
   function updateViewport() {
     viewportHeight = `${window.innerHeight}px`;
     document.documentElement.style.setProperty("--app-height", viewportHeight);
@@ -33,7 +33,6 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Root viewport variable */
   :root {
     --app-height: 100vh;
   }
@@ -56,7 +55,6 @@
     scroll-behavior: smooth;
   }
 
-  /* Bottom input rail placeholder */
   .input-rail {
     height: 56px;
     background: rgba(20, 20, 20, 0.85);
@@ -81,9 +79,7 @@
     <slot />
   </div>
 
-  <!-- Placeholder: real chat input will replace this later -->
   <div class="input-rail">
     <div class="placeholder-box"></div>
   </div>
 </div>
------------ FILE: src/routes/+layout.svelte (END) -----------
