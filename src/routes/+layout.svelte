@@ -19,6 +19,10 @@
   });
 </script>
 
+<!-- ------------------------------------------------------------
+     MOBILE-FIRST ROOT LAYOUT
+     Applies a consistent padded, centered viewport for all devices
+------------------------------------------------------------- -->
 <style>
   .root {
     width: 100%;
@@ -28,6 +32,12 @@
     justify-content: center;
     align-items: center;
     overflow: hidden;
+
+    /* Avoid layout jump under mobile browser chrome */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
 
   .fade {
@@ -38,14 +48,40 @@
     opacity: 0;
     pointer-events: none;
   }
+
+  /* Chat/Splash column wrapper */
+  .column {
+    width: 100%;
+    max-width: 620px;     /* readable chat width */
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Mobile tightening */
+  @media (max-width: 420px) {
+    .column {
+      max-width: 92%;
+    }
+  }
 </style>
 
+<!-- ------------------------------------------------------------
+     UI LAYERS
+------------------------------------------------------------- -->
 <div class="root">
-  <div class="fade {showSplash ? '' : 'hidden'}">
+
+  <!-- SPLASH -->
+  <div class="column fade {showSplash ? '' : 'hidden'}">
     <Splash />
   </div>
 
+  <!-- CHAT -->
   {#if !showSplash}
-    <ChatWrapper />
+    <div class="column">
+      <ChatWrapper />
+    </div>
   {/if}
+
 </div>

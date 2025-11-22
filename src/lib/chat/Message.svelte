@@ -1,7 +1,7 @@
 <!-- ------------------------------------------------------------
      COMPONENT: Message.svelte
-     PURPOSE: Unified bubble renderer for Pack Chat
-     Future-proof for persona states and Worker routing
+     PURPOSE: Unified, mobile-scaled bubble renderer for Pack Chat
+     Future-proof for persona states + Worker routing
 ------------------------------------------------------------- -->
 
 <script>
@@ -11,63 +11,103 @@
 </script>
 
 <style>
+  /* ------------------------------------------------------------
+       ROOT VARIABLES — TRU palette + bubble system
+  ------------------------------------------------------------- */
   :root {
-    --bubble-bg: rgba(255,255,255,0.10);
-    --bubble-border: rgba(255,255,255,0.18);
-    --glass-blur: blur(14px);
+    --bubble-bg: rgba(255,255,255,0.14);
+    --bubble-bg-user: rgba(0,62,81,0.26);
+    --bubble-border: rgba(255,255,255,0.22);
+    --bubble-border-user: rgba(0,62,81,0.36);
+
+    --glass-blur: blur(16px);
 
     --tru-blue: #003e51;
     --tru-teal: #00b0b9;
     --tru-yellow: #ffcd00;
   }
 
+  /* ------------------------------------------------------------
+       ROW LAYOUT
+  ------------------------------------------------------------- */
   .row {
     display: flex;
-    gap: 0.45rem;
-    margin: 0.45rem 0.75rem;
     align-items: flex-start;
+    gap: 10px;
+    margin: 2px 0;
+    width: 100%;
   }
 
+  /* User bubbles push right */
   .me {
     justify-content: flex-end;
   }
 
+  /* ------------------------------------------------------------
+       AVATAR — scaled for mobile
+  ------------------------------------------------------------- */
   .avatar {
-    width: 24px;
-    height: 24px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     object-fit: cover;
     flex-shrink: 0;
     box-shadow: 0 0 6px rgba(0,0,0,0.25);
+    margin-top: 2px;
   }
 
+  @media (max-width: 420px) {
+    .avatar {
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  /* ------------------------------------------------------------
+       BUBBLE — glassmorphic mobile baseline
+  ------------------------------------------------------------- */
   .bubble {
-    max-width: 75%;
-    padding: 0.65rem 0.9rem;
-    border-radius: 14px;
+    max-width: 80%;
     background: var(--bubble-bg);
     border: 1px solid var(--bubble-border);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
-    color: white;
-    font-size: 0.95rem;
-    line-height: 1.3rem;
-    word-break: break-word;
-  }
 
-  /* System colouring */
-  .system {
-    color: var(--tru-teal);
-    font-weight: 600;
+    padding: 12px 15px;
+    border-radius: 14px;
+
+    font-size: 16px;
+    line-height: 1.45;
+    color: white;
+
+    word-break: break-word;
   }
 
   /* User bubble override */
   .me .bubble {
-    background: rgba(0,62,81,0.25);
-    border-color: rgba(0,62,81,0.32);
+    background: var(--bubble-bg-user);
+    border-color: var(--bubble-border-user);
+  }
+
+  /* System bubble — distinct TRU/teal accent */
+  .system {
+    color: var(--tru-teal);
+    font-weight: 600;
+    background: rgba(255,255,255,0.10);
+    border-color: rgba(255,255,255,0.22);
+  }
+
+  @media (max-width: 420px) {
+    .bubble {
+      font-size: 16.5px;
+      padding: 13px 16px;
+    }
   }
 </style>
 
+<!-- ------------------------------------------------------------
+       RENDER
+------------------------------------------------------------- -->
 <div class="row {sender === 'user' ? 'me' : ''}">
   {#if sender !== 'user' && avatar}
     <img class="avatar" src={avatar} alt={sender} />
