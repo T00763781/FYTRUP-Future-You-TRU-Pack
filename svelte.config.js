@@ -5,13 +5,11 @@ const dev = process.env.NODE_ENV === "development";
 export default {
   kit: {
     adapter: adapter(),
-
-    // Base path for GitHub Pages project site
     paths: {
       base: dev ? "" : "/FYTRUP-alpha10"
     },
-
     prerender: {
+      entries: ["*"],
       handleHttpError: "warn"
     }
   }
