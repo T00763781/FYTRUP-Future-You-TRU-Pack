@@ -7,7 +7,7 @@
   import { onMount } from "svelte";
   import Splash from "$lib/ui/Splash.svelte";
 
-  // Correct, tree-verified import
+  /* Correct + tree-verified import */
   import ChatWrapper from "$lib/chat/ChatWrapper.svelte";
 
   let showSplash = true;
