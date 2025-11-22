@@ -1,56 +1,58 @@
+<!-- ------------------------------------------------------------
+     COMPONENT: Chat.svelte
+     PURPOSE: Renders the full Pack Chat message stream
+              using the unified Message bubble component.
+              Future-proof for persona logic + Worker routing.
+------------------------------------------------------------- -->
+
 <script>
   /* -----------------------------------------
-     SECTION: Purpose
-     PURPOSE: Minimal static chat shell UI.
-              No logic, no personas, no routing.
-              Paves the way for Operation 4 steps.
+     SECTION: Imports
+     PURPOSE: Message renderer + avatar registry
   ----------------------------------------- */
+  import { messages } from "./store.js";
+  import Message from "./Message.svelte";
 
-  export let messages = [];
+  /* -----------------------------------------
+     SECTION: Avatar Map
+     PURPOSE: Neutral persona icons (default state)
+  ----------------------------------------- */
+  import wolfieNeutral from "$lib/assets/characters/wolfie-icon-neutral.png";
+  import atlasNeutral from "$lib/assets/characters/atlas-icon-neutral.png";
+
+  const avatars = {
+    wolfie: wolfieNeutral,
+    atlas: atlasNeutral,
+    system: "",
+    user: ""
+  };
 </script>
 
 <style>
   /* -----------------------------------------
      SECTION: Layout
-     PURPOSE: Visual container for early chat tests
+     PURPOSE: Vertical scroll region for messages
   ----------------------------------------- */
-  .chat-shell {
-    width: 100%;
-    height: 100%;
+  .chat-stream {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  /* -----------------------------------------
-     SECTION: Message Bubbles (Temporary)
-     PURPOSE: Placeholder visuals until persona rules land
-  ----------------------------------------- */
-  .bubble {
-    max-width: 80%;
-    padding: 0.7rem 1rem;
-    border-radius: 16px;
-    background: rgba(255,255,255,0.08);
-    backdrop-filter: blur(12px);
-    color: white;
-    font-size: 0.95rem;
-  }
-
-  .system {
-    align-self: flex-start;
-    border: 1px solid rgba(255,255,255,0.15);
-  }
-
-  .user {
-    align-self: flex-end;
-    background: rgba(255,255,255,0.18);
+    overflow-y: auto;
+    padding: 0.25rem 0;
+    gap: 0.25rem;
   }
 </style>
 
-<div class="chat-shell">
-  {#each messages as m}
-    <div class="bubble {m.role}">
-      {m.text}
-    </div>
+<!-- -----------------------------------------
+     SECTION: Message Loop
+     PURPOSE: Each message goes through bubble renderer
+------------------------------------------ -->
+<div class="chat-stream">
+  {#each $messages as m}
+    <Message
+      sender={m.role}
+      text={m.text}
+      avatar={avatars[m.role]}
+    />
   {/each}
 </div>
