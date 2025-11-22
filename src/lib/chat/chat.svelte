@@ -1,58 +1,46 @@
 <!-- ------------------------------------------------------------
-     COMPONENT: Chat.svelte
-     PURPOSE: Renders the full Pack Chat message stream
-              using the unified Message bubble component.
-              Future-proof for persona logic + Worker routing.
+     CHAT WRAPPER — DEV SHELL
+     PURPOSE: Bridge between layout and ChatShell.
+              Provides minimal static messages to prove
+              the visual chat loop + avatars work.
 ------------------------------------------------------------- -->
 
 <script>
   /* -----------------------------------------
      SECTION: Imports
-     PURPOSE: Message renderer + avatar registry
+     PURPOSE: Wire ChatShell into this wrapper
   ----------------------------------------- */
-  import { messages } from "./store.js";
-  import Message from "./Message.svelte";
+  import ChatShell from "./ChatShell.svelte";
 
   /* -----------------------------------------
-     SECTION: Avatar Map
-     PURPOSE: Neutral persona icons (default state)
+     SECTION: Dev Messages
+     PURPOSE: Temporary seed data for visual tests.
+              Roles must align with avatar map in
+              ChatShell.svelte (system, user, wolfie, atlas).
   ----------------------------------------- */
-  import wolfieNeutral from "$lib/assets/characters/wolfie-icon-neutral.png";
-  import atlasNeutral from "$lib/assets/characters/atlas-icon-neutral.png";
-
-  const avatars = {
-    wolfie: wolfieNeutral,
-    atlas: atlasNeutral,
-    system: "",
-    user: ""
-  };
+  const messages = [
+    {
+      role: "system",
+      text: "Pack Chat dev shell is live. This is a preview of how messages will sit in the layout."
+    },
+    {
+      role: "wolfie",
+      text: "Hey Packmate — I’ll handle most campus-wayfinding chat once the Cloudflare worker is wired up."
+    },
+    {
+      role: "atlas",
+      text: "I’m here for program + building flavour, but for now I’m just helping test the chat visuals."
+    },
+    {
+      role: "user",
+      text: "Got it. Just confirming the bubbles, avatars, and layout feel solid on mobile."
+    }
+  ];
 </script>
 
-<style>
-  /* -----------------------------------------
-     SECTION: Layout
-     PURPOSE: Vertical scroll region for messages
-  ----------------------------------------- */
-  .chat-stream {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-    padding: 0.25rem 0;
-    gap: 0.25rem;
-  }
-</style>
-
 <!-- -----------------------------------------
-     SECTION: Message Loop
-     PURPOSE: Each message goes through bubble renderer
+     SECTION: Render
+     PURPOSE: Hand messages into ChatShell.
+              No logic, no routing yet.
 ------------------------------------------ -->
-<div class="chat-stream">
-  {#each $messages as m}
-    <Message
-      sender={m.role}
-      text={m.text}
-      avatar={avatars[m.role]}
-    />
-  {/each}
-</div>
+<ChatShell {messages} />
