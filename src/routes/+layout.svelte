@@ -10,7 +10,9 @@
   ----------------------------------------- */
   import { onMount } from "svelte";
   import Splash from "$lib/ui/Splash.svelte";
-  import Chat from "$lib/chat/Chat.svelte";
+
+  // FIXED: Corrected incorrect path "$lib/chat/Chat.svelte"
+  import Chat from "$lib/ui/Chat.svelte";
 
   /* -----------------------------------------
      SECTION: State
@@ -23,7 +25,6 @@
      PURPOSE: Fade-out timer for the splash
   ----------------------------------------- */
   onMount(() => {
-    // Production-safe timeout
     setTimeout(() => {
       showSplash = false;
     }, 2500);
