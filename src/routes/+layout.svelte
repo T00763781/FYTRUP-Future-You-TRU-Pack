@@ -1,6 +1,6 @@
 <!-- ------------------------------------------------------------
      +LAYOUT.SVELTE — ROOT SHELL
-     Controls: Splash → Fade → Chat
+     Controls: Splash → Fade → ChatWrapper
 ------------------------------------------------------------- -->
 
 <script>
@@ -11,8 +11,8 @@
   import { onMount } from "svelte";
   import Splash from "$lib/ui/Splash.svelte";
 
-  // CORRECTED — proper location + case sensitivity
-  import Chat from "$lib/chat/Chat.svelte";
+  // FIXED — correct file, correct case, correct folder
+  import ChatWrapper from "$lib/chat/ChatWrapper.svelte";
 
   /* -----------------------------------------
      SECTION: State
@@ -52,15 +52,15 @@
   }
 </style>
 
+<!-- ------------------------------------------------------------
+     UI LAYERS
+------------------------------------------------------------- -->
 <div class="root">
   <div class="fade {showSplash ? '' : 'hidden'}">
     <Splash />
   </div>
 
   {#if !showSplash}
-    <Chat messages={[
-      { role: "wolfie", text: "Pack Chat is warming up…" },
-      { role: "system", text: "UI shell linked successfully." }
-    ]}/>
+    <ChatWrapper />
   {/if}
 </div>
