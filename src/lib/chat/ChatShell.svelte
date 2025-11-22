@@ -1,36 +1,57 @@
-------------------------------------------------------------
-FILE: src/lib/chat/ChatShell.svelte
-------------------------------------------------------------
+<!-- ------------------------------------------------------------
+     CHATSHELL.SVELTE — VISUAL MESSAGE LOOP
+     PURPOSE: Feed messages into Message.svelte with avatars
+------------------------------------------------------------- -->
 
 <script>
   /* -----------------------------------------
-     SECTION: Purpose
-     PURPOSE: Provide message-loop container
-              used by ChatWrapper.
-              This file is the missing link
-              causing GitHub Pages to fail.
+     SECTION: Imports
   ----------------------------------------- */
+  import Message from "./Message.svelte";
 
+  import wolfieNeutral from "$lib/assets/characters/wolfie-icon-neutral.png";
+  import atlasNeutral from "$lib/assets/characters/atlas-icon-neutral.png";
+
+  /* -----------------------------------------
+     SECTION: Props
+     PURPOSE: Parent (ChatWrapper) sends messages here
+  ----------------------------------------- */
   export let messages = [];
+
+  /* -----------------------------------------
+     SECTION: Avatar map
+  ----------------------------------------- */
+  const avatars = {
+    wolfie: wolfieNeutral,
+    atlas: atlasNeutral,
+    system: "",
+    user: ""
+  };
 </script>
 
 <style>
   /* -----------------------------------------
      SECTION: Layout
-     PURPOSE: Minimal vertical stack for bubbles
   ----------------------------------------- */
-  .shell {
+  .chat-shell {
     width: 100%;
     height: 100%;
-    padding: 0.75rem 0;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    gap: 0.5rem;
+    padding: 0.5rem 0;
+    scrollbar-width: none;
+  }
+
+  .chat-shell::-webkit-scrollbar {
+    display: none;
   }
 </style>
 
-<div class="shell">
+<!-- -----------------------------------------
+     SECTION: Render Loop
+------------------------------------------ -->
+<div class="chat-shell">
   {#each messages as m}
     <Message
       sender={m.role}
@@ -39,21 +60,3 @@ FILE: src/lib/chat/ChatShell.svelte
     />
   {/each}
 </div>
-
-<!-- -----------------------------------------
-     SECTION: Dependencies
-     PURPOSE: Connect to Message.svelte + avatars
------------------------------------------- -->
-<script>
-  import Message from "./Message.svelte";
-
-  import wolfieNeutral from "$lib/assets/characters/wolfie-icon-neutral.png";
-  import atlasNeutral from "$lib/assets/characters/atlas-icon-neutral.png";
-
-  const avatars = {
-    wolfie: wolfieNeutral,
-    atlas: atlasNeutral,
-    system: "",
-    user: ""
-  };
-</script>
