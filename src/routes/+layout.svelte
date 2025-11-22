@@ -1,29 +1,17 @@
 <!-- ------------------------------------------------------------
      +LAYOUT.SVELTE — ROOT SHELL
-     Controls: Splash → Fade → ChatWrapper
+     Controls: Splash → Fade → Chat (via ChatWrapper)
 ------------------------------------------------------------- -->
 
 <script>
-  /* -----------------------------------------
-     SECTION: Imports
-     PURPOSE: Load splash + chat layers
-  ----------------------------------------- */
   import { onMount } from "svelte";
   import Splash from "$lib/ui/Splash.svelte";
 
-  // FIXED — correct file, correct case, correct folder
+  // Correct, tree-verified import
   import ChatWrapper from "$lib/chat/ChatWrapper.svelte";
 
-  /* -----------------------------------------
-     SECTION: State
-     PURPOSE: Toggle splash → chat transition
-  ----------------------------------------- */
   let showSplash = true;
 
-  /* -----------------------------------------
-     SECTION: Lifecycle
-     PURPOSE: Fade-out timer for the splash
-  ----------------------------------------- */
   onMount(() => {
     setTimeout(() => {
       showSplash = false;
@@ -52,9 +40,6 @@
   }
 </style>
 
-<!-- ------------------------------------------------------------
-     UI LAYERS
-------------------------------------------------------------- -->
 <div class="root">
   <div class="fade {showSplash ? '' : 'hidden'}">
     <Splash />
