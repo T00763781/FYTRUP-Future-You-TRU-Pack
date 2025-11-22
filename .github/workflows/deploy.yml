@@ -1,4 +1,3 @@
------------ FILE: .github/workflows/deploy.yml (BEGIN) -----------
 name: Deploy SvelteKit to GitHub Pages
 
 on:
@@ -48,4 +47,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
------------ FILE: .github/workflows/deploy.yml (END) -----------
