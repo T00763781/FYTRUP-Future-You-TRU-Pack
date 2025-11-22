@@ -1,212 +1,190 @@
 <script>
   /* -----------------------------------------
      SECTION: Imports
-     PURPOSE: Keep splash logic self-contained
+     PURPOSE: Splash + avatars + persona logic
   ----------------------------------------- */
   import { onMount } from "svelte";
+  import Splash from "$lib/ui/Splash.svelte";
+
+  import wolfieNeutral from "$lib/assets/characters/wolfie-icon-neutral.png";
+  import atlasNeutral from "$lib/assets/characters/atlas-icon-neutral.png";
 
   /* -----------------------------------------
      SECTION: State
-     PURPOSE: Splash visibility / timing
+     PURPOSE: Splash timing + message store
   ----------------------------------------- */
   let showSplash = true;
 
+  // Minimal future-proof message structure
+  let messages = [
+    {
+      id: 1,
+      role: "system",
+      name: "System",
+      avatar: null,
+      text: "Pack Chat development mode active."
+    },
+    {
+      id: 2,
+      role: "wolfie",
+      name: "Wolfie",
+      avatar: wolfieNeutral,
+      text: "Hey! I’m warming up the den. Things will come online soon."
+    },
+    {
+      id: 3,
+      role: "atlas",
+      name: "Atlas",
+      avatar: atlasNeutral,
+      text: "Mapping functions are sleeping… but not for long."
+    }
+  ];
+
   /* -----------------------------------------
-     SECTION: Lifecycle
-     PURPOSE: Time the splash fade-out
+     SECTION: Splash Lifecycle
+     PURPOSE: Fade-out after delay
   ----------------------------------------- */
   onMount(() => {
     const t = setTimeout(() => (showSplash = false), 4000);
     return () => clearTimeout(t);
   });
+
+  /* -----------------------------------------
+     SECTION: Helpers
+     PURPOSE: Group consecutive messages by speaker
+  ----------------------------------------- */
+  function groupMessages(msgs) {
+    let groups = [];
+    let current = null;
+
+    msgs.forEach((m) => {
+      if (!current || current.role !== m.role) {
+        current = { role: m.role, name: m.name, avatar: m.avatar, items: [] };
+        groups.push(current);
+      }
+      current.items.push(m.text);
+    });
+
+    return groups;
+  }
 </script>
 
 <style>
   /* -----------------------------------------
      SECTION: TRU Brand Palette
-     PURPOSE: Official colour system
   ----------------------------------------- */
   :root {
     --tru-blue: #003e51;
     --tru-teal: #00b0b9;
-    --tru-sage: #bad1ba;
-    --tru-grey: #9ab7c1;
     --tru-yellow: #ffcd00;
-    --tru-cloud: #fff5de;
     --ol-green: #00b18f;
     --tru-orange: #f88f23;
 
-    --bg: var(--tru-blue);  /* Dominant background */
-    --glass-bg: rgba(255, 255, 255, 0.08);
-    --glass-stroke: rgba(255, 255, 255, 0.18);
+    --glass-bg: rgba(255,255,255,0.08);
+    --glass-stroke: rgba(255,255,255,0.18);
     --glass-blur: blur(18px);
     --text-light: #ffffff;
-    --font-ui: "Roboto", sans-serif;
   }
 
-  :global(html),
   :global(body) {
     margin: 0;
-    background: var(--bg);
-    font-family: var(--font-ui);
+    background: var(--tru-blue);
     color: var(--text-light);
-    height: 100%;
   }
 
   /* -----------------------------------------
-     SECTION: Splash Screen
-     PURPOSE: TRU-branded animated intro
-  ----------------------------------------- */
-  .splash {
-    position: fixed;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-
-    background: radial-gradient(
-      circle at center,
-      var(--tru-blue) 0%,
-      #001d28 100%
-    );
-
-    gap: 1rem;
-    z-index: 9999;
-    transition: opacity 0.7s ease;
-  }
-  .splash.hidden {
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .splash-title {
-    font-size: 2.4rem;
-    font-weight: 700;
-    display: flex;
-    gap: 0.35rem;
-    animation: fadeUp 0.6s ease forwards;
-  }
-
-  .splash-sub {
-    opacity: 0.85;
-    animation: fadeUp 1.0s ease forwards;
-  }
-
-  .splash-bar {
-    width: 60%;
-    height: 6px;
-    background: rgba(255,255,255,0.25);
-    border-radius: 4px;
-    overflow: hidden;
-    margin-top: 0.8rem;
-  }
-  .splash-bar-fill {
-    height: 100%;
-    width: 0%;
-    background: white;
-    animation: splashLoad 4s ease forwards;
-  }
-
-  @keyframes splashLoad { from { width:0; } to { width:100%; } }
-  @keyframes fadeUp { from {opacity:0; transform:translateY(6px);} to {opacity:1; transform:translateY(0);} }
-
-  .t-find  { color: var(--tru-teal); }
-  .t-your  { color: var(--tru-yellow); }
-  .t-tru   { color: var(--ol-green); }
-  .t-path  { color: var(--tru-orange); }
-
-  /* -----------------------------------------
-     SECTION: Glassmorphic Landing Page
-     PURPOSE: Polished dev-state scaffold
+     SECTION: Page Wrapper
   ----------------------------------------- */
   .page {
     height: 100vh;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 1.2rem;
+    flex-direction: column;
+    padding: 1rem;
     box-sizing: border-box;
-    text-align: center;
+    gap: 1rem;
   }
 
-  .glass-card {
-    width: 100%;
-    max-width: 520px;
-
-    padding: 2.2rem 1.8rem;
-    border-radius: 24px;
-
+  /* -----------------------------------------
+     SECTION: Chat Container
+     PURPOSE: Glassmorphic mobile-first panel
+  ----------------------------------------- */
+  .chat-container {
+    flex: 1;
     background: var(--glass-bg);
+    border: 1px solid var(--glass-stroke);
+    border-radius: 20px;
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
-    border: 1px solid var(--glass-stroke);
-
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 1.1rem;
-
-    box-shadow: 0 12px 40px rgba(0,0,0,0.35);
-    animation: fadeIn 0.8s ease forwards;
-    opacity: 0;
+    padding: 0.75rem;
+    overflow-y: auto;
+    gap: 1.2rem;
   }
 
-  @keyframes fadeIn {
-    from { opacity:0; transform:translateY(10px); }
-    to   { opacity:1; transform:translateY(0); }
-  }
-
-  .headline {
-    font-size: 2.2rem;
-    font-weight: 700;
+  /* -----------------------------------------
+     SECTION: Group Header
+  ----------------------------------------- */
+  .group-header {
     display: flex;
-    gap: 0.35rem;
-    justify-content: center;
-    flex-wrap: wrap;
-    line-height: 1.15;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.25rem;
   }
 
-  .dev-line {
-    font-size: 1.1rem;
+  .avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .name {
+    font-size: 0.85rem;
     opacity: 0.9;
   }
+
+  /* -----------------------------------------
+     SECTION: Bubbles
+  ----------------------------------------- */
+  .bubble {
+    max-width: 80%;
+    padding: 0.6rem 1rem;
+    border-radius: 14px;
+    font-size: 0.95rem;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .system { background: rgba(255,255,255,0.15); align-self: center; }
+  .wolfie { background: rgba(0,176,185,0.25); align-self: flex-start; }
+  .atlas  { background: rgba(0,177,143,0.25); align-self: flex-start; }
+  .user   { background: rgba(255,205,0,0.25); align-self: flex-end; }
 </style>
 
 <!-- -----------------------------------------
-     SECTION: Splash Template
-     PURPOSE: Fully-branded TRU intro
+     SECTION: Splash Layer
 ------------------------------------------ -->
-<div class="splash {showSplash ? '' : 'hidden'}">
-  <div class="splash-title">
-    <span class="t-find">Find</span>
-    <span class="t-your">Your</span>
-    <span class="t-tru">TRU</span>
-    <span class="t-path">Path</span>
-  </div>
-
-  <div class="splash-sub">Loading the Pack Chat…</div>
-
-  <div class="splash-bar">
-    <div class="splash-bar-fill"></div>
-  </div>
-</div>
+<Splash {showSplash} />
 
 <!-- -----------------------------------------
-     SECTION: Main Landing (dev mode)
-     PURPOSE: Glassmorphic interim UI
+     SECTION: Main Page
 ------------------------------------------ -->
 <div class="page" style="visibility:{showSplash ? 'hidden' : 'visible'}">
-  <div class="glass-card">
-    <div class="headline">
-      <span class="t-find">Find</span>
-      <span class="t-your">Your</span>
-      <span class="t-tru">TRU</span>
-      <span class="t-path">Path</span>
-    </div>
+  <div class="chat-container">
+    {#each groupMessages(messages) as group}
+      <div>
+        <div class="group-header">
+          {#if group.avatar}
+            <img class="avatar" src={group.avatar} alt={group.name} />
+          {/if}
+          <div class="name">{group.name}</div>
+        </div>
 
-    <div class="dev-line">
-      Pack Chat is stretching its paws—features waking up soon.
-    </div>
+        {#each group.items as text}
+          <div class="bubble {group.role}">{text}</div>
+        {/each}
+      </div>
+    {/each}
   </div>
 </div>
