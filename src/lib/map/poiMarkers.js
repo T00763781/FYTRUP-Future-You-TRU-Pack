@@ -1,21 +1,22 @@
 ﻿// ------------------------------------------------------------
-// poiMarkers.js — FYTRUP Alpha10 POI Engine
+// poiMarkers.js — FYTRUP Alpha10 POI Engine (GitHub-safe)
 // ------------------------------------------------------------
+import { base } from "$app/paths";   // <-- CRITICAL for GitHub Pages
 
-// Marker icon selector
+// Marker icon selector with base path
 function iconForState(state) {
   const iconMap = {
-    unseen: "/icons/marker_unseen.png",
-    visited: "/icons/marker_visited.png",
-    completed: "/icons/marker_completed.png"
+    unseen: `${base}/icons/marker_unseen.png`,
+    visited: `${base}/icons/marker_visited.png`,
+    completed: `${base}/icons/marker_completed.png`
   };
   return iconMap[state] || iconMap.unseen;
 }
 
-// Persona avatar lookup (static URLs only)
+// Persona avatar lookup (static URLs only, base-prefixed)
 const personaPic = {
-  wolfie: "/characters/wolfie-icon-neutral.png",
-  atlas: "/characters/atlas-icon-neutral.png"
+  wolfie: `${base}/characters/wolfie-icon-neutral.png`,
+  atlas:  `${base}/characters/atlas-icon-neutral.png`
 };
 
 // POI definitions
@@ -40,7 +41,7 @@ const POIS = [
   }
 ];
 
-// persistent marker state load/save
+// persistent marker state
 function getState(id) {
   return localStorage.getItem("poi-" + id) || "unseen";
 }
@@ -54,6 +55,7 @@ export async function initPOIMarkers(map) {
   POIS.forEach((poi) => {
     const state = getState(poi.id);
 
+    // Marker icon
     const icon = L.icon({
       iconUrl: iconForState(state),
       iconSize: [44, 44],
@@ -62,9 +64,10 @@ export async function initPOIMarkers(map) {
 
     const marker = L.marker(poi.latlng, { icon }).addTo(map);
 
+    // Popup (persona avatar + title)
     const popupHTML = `
       <div style="display:flex; gap:10px; align-items:center;">
-        <img src="${personaPic[poi.persona]}" 
+        <img src="${personaPic[poi.persona]}"
              style="width:40px;height:40px;border-radius:50%;" />
         <div>
           <strong>${poi.name}</strong><br/>
@@ -75,10 +78,11 @@ export async function initPOIMarkers(map) {
 
     marker.bindPopup(popupHTML);
 
-    // update marker state
+    // State update on tap
     marker.on("click", () => {
       if (state === "unseen") {
         saveState(poi.id, "visited");
+
         marker.setIcon(
           L.icon({
             iconUrl: iconForState("visited"),

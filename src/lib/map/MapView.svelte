@@ -1,9 +1,11 @@
 <!-- ------------------------------------------------------------
      MAPVIEW.SVELTE — FYTRUP Alpha10 Final (Premium Layering)
+     GitHub Pages–safe (uses $app/paths base prefix)
 ------------------------------------------------------------- -->
 
 <script>
   import { onMount, onDestroy } from "svelte";
+  import { base } from "$app/paths"; // <-- CRITICAL FOR GH PAGES
 
   let map;
   let mapContainer;
@@ -53,13 +55,10 @@
     inset: 0;
     width: 100%;
     height: 100%;
-
-    /* ensure map never clips unexpectedly */
     overflow: hidden;
     z-index: 10;
   }
 
-  /* Leaflet map layer */
   :global(.leaflet-container) {
     width: 100% !important;
     height: 100% !important;
@@ -67,22 +66,18 @@
     touch-action: pan-x pan-y pinch-zoom;
   }
 
-  /* POI markers (layer 20) */
   :global(.leaflet-marker-icon) {
     z-index: 20 !important;
   }
 
-  /* User accuracy circle (layer 30) */
   :global(path.leaflet-interactive) {
     z-index: 30 !important;
   }
 
-  /* User location marker (layer 30) */
   :global(.fytrup-user-marker) {
     z-index: 30 !important;
   }
 
-  /* Recenter button (layer 40 = highest) */
   .recenter-btn {
     position: absolute;
     right: 12px;
@@ -119,7 +114,7 @@
 
 <div class="map-shell" bind:this={mapContainer}></div>
 
-<!-- Recenter -->
+<!-- Recenter Button -->
 <div class="recenter-btn" bind:this={recenterButton}>
-  <img src="/icons/Recenter.png" alt="recenter" />
+  <img src="{base}/icons/Recenter.png" alt="recenter" />
 </div>

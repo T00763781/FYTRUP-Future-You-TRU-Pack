@@ -2,10 +2,12 @@
      CHATINPUT.SVELTE — FYTRUP Alpha10
      Floating message input bar (camera → input → send)
      Mobile-first, safe-area aware, theme-driven
+     Fully GitHub Pages compatible (uses $app/paths base prefix)
 ------------------------------------------------------------- -->
 
 <script>
   import { createEventDispatcher } from "svelte";
+  import { base } from "$app/paths";   // <-- CRITICAL for GitHub Pages
 
   const dispatch = createEventDispatcher();
 
@@ -96,7 +98,7 @@
 
     <!-- Camera -->
     <button on:click={openCamera}>
-      <img src="/icons/Camera.png" alt="camera" />
+      <img src="{base}/icons/Camera.png" alt="camera" />
     </button>
 
     <!-- Input -->
@@ -108,7 +110,7 @@
 
     <!-- Send -->
     <button on:click={handleSend}>
-      <img src="/icons/send-icon.png" alt="send" />
+      <img src="{base}/icons/send-icon.png" alt="send" />
     </button>
 
   </div>

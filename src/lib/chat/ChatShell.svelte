@@ -1,29 +1,29 @@
 <!-- ------------------------------------------------------------
-     CHATSHELL.SVELTE — FYTRUP Alpha10 (Patched for persona names)
+     CHATSHELL.SVELTE — FYTRUP Alpha10 (Persona names + base path)
      PURPOSE:
        • Render incoming chat messages
-       • Attach correct persona avatars
-       • Attach correct persona display names
-       • Updated for /static/characters asset structure
+       • Correct persona avatars
+       • Correct persona display names
+       • Fully GitHub Pages compatible using $app/paths base prefix
 ------------------------------------------------------------- -->
 
 <script>
   import Message from "./Message.svelte";
+  import { base } from "$app/paths";   // <-- CRITICAL FIX for GitHub Pages
 
   export let messages = [];
 
   /* -----------------------------------------
-     Persona registry for:
-       avatar path (static)
-       display name (shown under icon)
+     Persona registry (avatar + display name)
+     All static assets must use `${base}/...`
   ----------------------------------------- */
   const personas = {
     wolfie: {
-      avatar: "/characters/wolfie-icon-neutral.png",
+      avatar: `${base}/characters/wolfie-icon-neutral.png`,
       name: "Wolfie"
     },
     atlas: {
-      avatar: "/characters/atlas-icon-neutral.png",
+      avatar: `${base}/characters/atlas-icon-neutral.png`,
       name: "Atlas"
     },
     system: {
@@ -72,7 +72,6 @@
     display: none;
   }
 
-  /* These are unused here but preserved for predictable overrides */
   .avatar {
     width: 32px;
     height: 32px;
