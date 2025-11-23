@@ -1,9 +1,9 @@
 /* ------------------------------------------------------------
    THEMES.CSS — FYTRUP Alpha10 Global Theme Variables
-   Loaded globally by +layout.svelte
+   RFS-READY VERSION (safe for dynamic <html> font-size)
 ------------------------------------------------------------- */
 
-/* ------- TRU DEFAULT THEME -------------------------------- */
+/* ========== TRU DEFAULT THEME ============================== */
 :root[data-theme="tru"] {
   --bg: #004c63;
   --text: #e6f7ff;
@@ -16,12 +16,17 @@
   --accent-green: #58d68d;
   --accent-orange: #ff8c42;
 
+  /* Bubble surfaces (chat) */
   --bubble-bg: rgba(255, 255, 255, 0.16);
   --bubble-user-bg: rgba(255, 255, 255, 0.28);
   --bubble-system-bg: rgba(255, 255, 255, 0.18);
+
+  /* Input surfaces */
+  --input-bg: rgba(255, 255, 255, 0.18);
+  --input-border: rgba(255, 255, 255, 0.32);
 }
 
-/* ------- NIGHT THEME ------------------------------------- */
+/* ========== NIGHT THEME ===================================== */
 :root[data-theme="night"] {
   --bg: #0b0f16;
   --text: #d5e1f0;
@@ -37,9 +42,12 @@
   --bubble-bg: rgba(255, 255, 255, 0.15);
   --bubble-user-bg: rgba(255, 255, 255, 0.25);
   --bubble-system-bg: rgba(255, 255, 255, 0.20);
+
+  --input-bg: rgba(255, 255, 255, 0.18);
+  --input-border: rgba(255, 255, 255, 0.28);
 }
 
-/* ------- SUNSET THEME ------------------------------------ */
+/* ========== SUNSET THEME ==================================== */
 :root[data-theme="sunset"] {
   --bg: linear-gradient(180deg, #ff9966, #ff5e62);
   --text: #ffffff;
@@ -55,13 +63,24 @@
   --bubble-bg: rgba(255, 255, 255, 0.18);
   --bubble-user-bg: rgba(255, 255, 255, 0.25);
   --bubble-system-bg: rgba(255, 255, 255, 0.22);
+
+  --input-bg: rgba(255, 255, 255, 0.22);
+  --input-border: rgba(255, 255, 255, 0.32);
 }
 
-/* ------- GLOBAL RESET ------------------------------------- */
+/* ========== GLOBAL RESET + RFS-COMPATIBILITY ================ */
+
 html, body {
   background: var(--bg);
   color: var(--text);
   margin: 0;
   padding: 0;
   height: 100%;
+
+  /* Prevent chat zoom/pinch */
+  -webkit-text-size-adjust: 100%;
+  touch-action: pan-y;
+
+  /* Allow +layout.svelte to dynamically scale root REM */
+  font-family: system-ui, sans-serif;
 }
