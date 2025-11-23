@@ -1,12 +1,22 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <link rel="icon" href="%sveltekit.assets%/favicon.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Fixed, no-zoom viewport for app-like behaviour -->
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+
     %sveltekit.head%
   </head>
-  <body data-sveltekit-preload-data="hover">
-    <div style="display: contents">%sveltekit.body%</div>
+
+  <!-- data-theme is set by initTheme() on first mount -->
+  <body data-theme="tru">
+    <div style="display: contents">
+      %sveltekit.body%
+    </div>
   </body>
 </html>

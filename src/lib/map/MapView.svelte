@@ -1,44 +1,125 @@
 <!-- ------------------------------------------------------------
-     MAPVIEW.SVELTE — FYTRUP Alpha10
-     SSR-safe Leaflet dynamic loader
+     MAPVIEW.SVELTE — FYTRUP Alpha10 Final (Premium Layering)
 ------------------------------------------------------------- -->
 
 <script>
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
 
-  let mapEl;       // DOM node for Leaflet map
-  let map;         // Leaflet instance
+  let map;
+  let mapContainer;
+  let recenterButton;
+  let userMarker;
+
+  let initMapCore;
+  let initPOIMarkers;
+  let watchUserLocation;
+
+  let cleanup = () => {};
 
   onMount(async () => {
-    // guard: DOM only
-    if (!mapEl) return;
+    const core = await import("./mapCore.js");
+    const poi = await import("./poiMarkers.js");
+    const loc = await import("./mapEvents.js");
 
-    // dynamic import — REQUIRED for SSR safety
-    const L = await import("leaflet");
+    initMapCore = core.initMapCore;
+    initPOIMarkers = poi.initPOIMarkers;
+    watchUserLocation = loc.watchUserLocation;
 
-    // Leaflet default CSS (also loaded dynamically)
-    await import("leaflet/dist/leaflet.css");
+    map = await initMapCore(mapContainer);
+    initPOIMarkers(map);
 
-    // Create map instance
-    map = L.map(mapEl, {
-      zoomControl: false,
-      attributionControl: false
-    }).setView([50.675, -120.338], 16);
-
-    // Tile layer
-    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19
-    }).addTo(map);
+    cleanup = watchUserLocation(
+      map,
+      (newMarker) => (userMarker = newMarker),
+      recenterButton
+    );
   });
+
+  onDestroy(() => cleanup && cleanup());
 </script>
 
 <style>
-  .map-area {
+  /* ------------------------------------------------------------
+       PREMIUM LAYERING STACK
+       (bottom → top)
+       10 = Map tiles
+       20 = POI markers
+       30 = User marker + accuracy ring
+       40 = Recenter button
+  ------------------------------------------------------------- */
+
+  .map-shell {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
+
+    /* ensure map never clips unexpectedly */
     overflow: hidden;
-    background: #003e51;
+    z-index: 10;
+  }
+
+  /* Leaflet map layer */
+  :global(.leaflet-container) {
+    width: 100% !important;
+    height: 100% !important;
+    z-index: 10;
+    touch-action: pan-x pan-y pinch-zoom;
+  }
+
+  /* POI markers (layer 20) */
+  :global(.leaflet-marker-icon) {
+    z-index: 20 !important;
+  }
+
+  /* User accuracy circle (layer 30) */
+  :global(path.leaflet-interactive) {
+    z-index: 30 !important;
+  }
+
+  /* User location marker (layer 30) */
+  :global(.fytrup-user-marker) {
+    z-index: 30 !important;
+  }
+
+  /* Recenter button (layer 40 = highest) */
+  .recenter-btn {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: rgba(0, 0, 0, 0.42);
+    backdrop-filter: blur(7px);
+
+    cursor: pointer;
+    z-index: 40;
+
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    transition: transform .15s ease;
+  }
+
+  .recenter-btn:active {
+    transform: scale(0.92);
+  }
+
+  .recenter-btn img {
+    width: 20px;
+    height: 20px;
+    opacity: 0.95;
   }
 </style>
 
-<div class="map-area" bind:this={mapEl}></div>
+<div class="map-shell" bind:this={mapContainer}></div>
+
+<!-- Recenter -->
+<div class="recenter-btn" bind:this={recenterButton}>
+  <img src="/icons/Recenter.png" alt="recenter" />
+</div>

@@ -1,62 +1,65 @@
 <!-- ------------------------------------------------------------
-     CHATSHELL.SVELTE — VISUAL MESSAGE LOOP
-     PURPOSE: Feed messages into Message.svelte with avatars
+     CHATSHELL.SVELTE — FYTRUP Alpha10 (Patched for persona names)
+     PURPOSE:
+       • Render incoming chat messages
+       • Attach correct persona avatars
+       • Attach correct persona display names
+       • Updated for /static/characters asset structure
 ------------------------------------------------------------- -->
 
 <script>
-  /* -----------------------------------------
-     SECTION: Imports
-  ----------------------------------------- */
   import Message from "./Message.svelte";
 
-  import wolfieNeutral from "$lib/assets/characters/wolfie-icon-neutral.png";
-  import atlasNeutral from "$lib/assets/characters/atlas-icon-neutral.png";
-
-  /* -----------------------------------------
-     SECTION: Props
-     PURPOSE: Parent (ChatWrapper) sends messages here
-  ----------------------------------------- */
   export let messages = [];
 
   /* -----------------------------------------
-     SECTION: Avatar map
+     Persona registry for:
+       avatar path (static)
+       display name (shown under icon)
   ----------------------------------------- */
-  const avatars = {
-    wolfie: wolfieNeutral,
-    atlas: atlasNeutral,
-    system: "",
-    user: ""
+  const personas = {
+    wolfie: {
+      avatar: "/characters/wolfie-icon-neutral.png",
+      name: "Wolfie"
+    },
+    atlas: {
+      avatar: "/characters/atlas-icon-neutral.png",
+      name: "Atlas"
+    },
+    system: {
+      avatar: "",
+      name: ""
+    },
+    user: {
+      avatar: "",
+      name: ""
+    }
   };
 </script>
 
 <!-- ------------------------------------------------------------
-     SECTION: Render Loop
+     RENDER LOOP
 ------------------------------------------------------------- -->
 <div class="chat-shell">
   {#each messages as m}
     <Message
       sender={m.role}
       text={m.text}
-      avatar={avatars[m.role]}
+      avatar={personas[m.role]?.avatar}
+      name={personas[m.role]?.name}
     />
   {/each}
 </div>
 
 <style>
-  /* ------------------------------------------------------------
-       CHAT SHELL — MOBILE-FIRST SCALING PATCH
-       Applies to: message bubbles, avatars, spacing, column width
-  ------------------------------------------------------------- */
-
   :global(body) {
     font-family: system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Chat container */
   .chat-shell {
     width: 100%;
-    max-width: 600px;               /* mobile-safe readable column */
+    max-width: 600px;
     margin: 0 auto;
     padding: 12px;
     display: flex;
@@ -69,7 +72,7 @@
     display: none;
   }
 
-  /* Avatar dots — scaled for mobile */
+  /* These are unused here but preserved for predictable overrides */
   .avatar {
     width: 32px;
     height: 32px;
@@ -77,7 +80,6 @@
     object-fit: cover;
   }
 
-  /* Message bubble */
   .bubble {
     background: rgba(255, 255, 255, 0.16);
     color: white;
@@ -89,7 +91,6 @@
     word-wrap: break-word;
   }
 
-  /* System bubble (center, announcement style) */
   .system {
     align-self: center;
     background: rgba(255, 255, 255, 0.18);
@@ -99,13 +100,11 @@
     max-width: 90%;
   }
 
-  /* User bubble — right aligned */
   .me {
     margin-left: auto;
     background: rgba(255, 255, 255, 0.28);
   }
 
-  /* Mobile tightening */
   @media (max-width: 420px) {
     .bubble {
       font-size: 16.5px;

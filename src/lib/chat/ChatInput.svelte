@@ -1,7 +1,7 @@
 <!-- ------------------------------------------------------------
-     CHATINPUT.SVELTE — Floating Message Input Bar
-     Purpose: Camera button → message field → send button
-     Behaviour: Floats above safe-area, theme-aware, mobile-first
+     CHATINPUT.SVELTE — FYTRUP Alpha10
+     Floating message input bar (camera → input → send)
+     Mobile-first, safe-area aware, theme-driven
 ------------------------------------------------------------- -->
 
 <script>
@@ -94,18 +94,22 @@
 <div class="input-wrap">
   <div class="input-bar">
 
+    <!-- Camera -->
     <button on:click={openCamera}>
       <img src="/icons/Camera.png" alt="camera" />
     </button>
 
+    <!-- Input -->
     <input
       bind:value={message}
       placeholder="Chat with the Pack…"
       on:keydown={(e) => e.key === 'Enter' && handleSend()}
     />
 
+    <!-- Send -->
     <button on:click={handleSend}>
       <img src="/icons/send-icon.png" alt="send" />
     </button>
+
   </div>
 </div>

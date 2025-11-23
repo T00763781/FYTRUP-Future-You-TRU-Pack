@@ -1,15 +1,17 @@
 <!-- ------------------------------------------------------------
-     CHATWRAPPER.SVELTE — FYTRUP Alpha10 Chat Frame (Patched)
+     CHATWRAPPER.SVELTE — FYTRUP Alpha10 Chat Frame (Final)
      Purpose:
-       • Scrollable chat inside layer-chat region
-       • Flexible height under map window
-       • Floating input bar fixed at bottom of layer-chat
+       • Scrollable chat inside layer-chat
+       • Floating input bar anchored inside wrapper
+       • Layout-safe on all devices
+       • All icons now pulled from /static/icons
 ------------------------------------------------------------- -->
 
 <script>
   import { onDestroy } from "svelte";
   import ChatShell from "./ChatShell.svelte";
   import ChatInput from "./ChatInput.svelte";
+
   import { appState } from "$lib/state/appState.js";
 
   let state;
@@ -32,7 +34,9 @@
 </script>
 
 <style>
-  /* Outer wrapper simply fills layer-chat */
+  /* ------------------------------------------------------------
+       CHAT WRAPPER — fills the layer-chat window
+  ------------------------------------------------------------- */
   .chat-wrapper {
     position: relative;
     width: 100%;
@@ -40,53 +44,59 @@
 
     display: flex;
     flex-direction: column;
-
     overflow: hidden;
   }
 
-  /* Scroll region — flex:1 inside wrapper */
+  /* ------------------------------------------------------------
+       SCROLL REGION
+       Scrolls independently inside layer-chat
+  ------------------------------------------------------------- */
   .chat-scroll {
     flex: 1;
     overflow-y: auto;
 
-    padding: 16px 12px 80px; /* room for input bar */
+    padding: 16px 12px calc(90px + env(safe-area-inset-bottom));
     scrollbar-width: none;
   }
   .chat-scroll::-webkit-scrollbar {
     display: none;
   }
 
-  /* constrain message width */
+  /* Constrain message width */
   .column {
     width: 100%;
     max-width: 640px;
     margin: 0 auto;
+
     display: flex;
     flex-direction: column;
     gap: 14px;
   }
 
-  /* Floating input bar at bottom of wrapper */
+  /* ------------------------------------------------------------
+       INPUT BAR (FLOATING)
+       Sits safely above the bottom inset
+  ------------------------------------------------------------- */
   .input-bar {
     position: absolute;
     bottom: 0;
     width: 100%;
-
     display: flex;
     justify-content: center;
 
-    padding: 0 12px 8px;
+    padding-bottom: calc(env(safe-area-inset-bottom) + 8px);
   }
 
   .input-inner {
     width: 100%;
     max-width: 640px;
+    padding: 0 12px;
   }
 </style>
 
 <div class="chat-wrapper">
 
-  <!-- SCROLLING MESSAGE COLUMN -->
+  <!-- SCROLL AREA -->
   <div class="chat-scroll">
     <div class="column">
       <ChatShell messages={state.messages} />
