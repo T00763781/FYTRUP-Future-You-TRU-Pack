@@ -1,19 +1,22 @@
 <!-- ------------------------------------------------------------
-     COMPONENT: Message.svelte — FYTRUP Alpha10 (Patched)
+     COMPONENT: Message.svelte — FYTRUP Alpha10 (Mobile-Scaled REM)
      PURPOSE:
-       • Unified bubble renderer
-       • Persona avatars + persona names under avatar
-       • Mobile-scaled, glassmorphic
+       • Persona avatars + persona names
+       • Responsive REM-based text scaling
+       • Glassmorphic TRU chat bubbles
 ------------------------------------------------------------- -->
 
 <script>
-  export let sender = "system";    // system | user | wolfie | atlas | ...
-  export let avatar = "";          // path from ChatShell
-  export let name = "";            // NEW — persona name shown under avatar
-  export let text = "";            // message body
+  export let sender = "system";   
+  export let avatar = "";         
+  export let name = "";           
+  export let text = "";           
 </script>
 
 <style>
+  /* ------------------------------------------------------------
+       PALETTE + GLASS CONSTANTS
+  ------------------------------------------------------------- */
   :root {
     --bubble-bg: rgba(255,255,255,0.14);
     --bubble-bg-user: rgba(0,62,81,0.26);
@@ -21,68 +24,80 @@
     --bubble-border-user: rgba(0,62,81,0.36);
 
     --glass-blur: blur(16px);
-
     --tru-blue: #003e51;
     --tru-teal: #00b0b9;
-    --tru-yellow: #ffcd00;
   }
 
-  /* ROW — left/right alignment */
+  /* ------------------------------------------------------------
+       ROW — left/right alignment
+  ------------------------------------------------------------- */
   .row {
     display: flex;
     align-items: flex-start;
-    gap: 10px;
-    margin: 4px 0;
+    gap: 0.6rem;
+    margin: 0.25rem 0;
     width: 100%;
   }
+
   .me {
     justify-content: flex-end;
   }
 
-  /* AVATAR COLUMN */
+  /* ------------------------------------------------------------
+       AVATAR COLUMN — scaled with REM
+  ------------------------------------------------------------- */
   .avatar-col {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 42px;
+    width: 2.6rem;
     flex-shrink: 0;
-    margin-top: 2px;
+    margin-top: 0.15rem;
   }
 
   .avatar {
-    width: 30px;
-    height: 30px;
+    width: 1.9rem;
+    height: 1.9rem;
     border-radius: 50%;
     object-fit: cover;
-    box-shadow: 0 0 6px rgba(0,0,0,0.25);
+    box-shadow: 0 0 0.35rem rgba(0,0,0,0.25);
   }
 
   .name {
-    margin-top: 4px;
-    font-size: 12px;
+    margin-top: 0.25rem;
+    font-size: 0.75rem;     /* 12px → REM */
     line-height: 1.1;
     opacity: 0.78;
     color: var(--text);
     text-align: center;
-    max-width: 48px;
+    max-width: 3rem;
     white-space: nowrap;
   }
 
   @media (max-width: 420px) {
-    .avatar { width: 28px; height: 28px; }
-    .name { font-size: 11px; }
+    .avatar {
+      width: 1.75rem;
+      height: 1.75rem;
+    }
+    .name {
+      font-size: 0.7rem;
+    }
   }
 
-  /* BUBBLE */
+  /* ------------------------------------------------------------
+       BUBBLE — REM text scaling
+  ------------------------------------------------------------- */
   .bubble {
     max-width: 80%;
     background: var(--bubble-bg);
     border: 1px solid var(--bubble-border);
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
-    padding: 12px 15px;
-    border-radius: 14px;
-    font-size: 16px;
+
+    padding: 0.85rem 1rem;
+    border-radius: 0.9rem;
+
+    font-size: 1rem;              /* main fix */
     line-height: 1.45;
     color: white;
     word-break: break-word;
@@ -102,8 +117,8 @@
 
   @media (max-width: 420px) {
     .bubble {
-      font-size: 16.5px;
-      padding: 13px 16px;
+      font-size: 1.05rem;   /* slightly larger on small phones */
+      padding: 0.9rem 1.05rem;
     }
   }
 </style>
@@ -111,10 +126,9 @@
 <!-- ------------------------------------------------------------
      RENDER
 ------------------------------------------------------------- -->
-
 <div class="row {sender === 'user' ? 'me' : ''}">
 
-  <!-- Persona column only for non-user senders -->
+  <!-- Persona column for non-user senders -->
   {#if sender !== 'user' && avatar}
     <div class="avatar-col">
       <img class="avatar" src={avatar} alt={sender} />
@@ -124,6 +138,7 @@
     </div>
   {/if}
 
+  <!-- Bubble -->
   <div class="bubble {sender === 'system' ? 'system' : ''}">
     {text}
   </div>

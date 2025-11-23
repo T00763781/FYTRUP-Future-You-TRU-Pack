@@ -5,7 +5,7 @@
 
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { base } from "$app/paths"; // <-- CRITICAL FOR GH PAGES
+  import { base } from "$app/paths"; // CRITICAL FOR GH PAGES
 
   let map;
   let mapContainer;
@@ -43,11 +43,6 @@
 <style>
   /* ------------------------------------------------------------
        PREMIUM LAYERING STACK
-       (bottom → top)
-       10 = Map tiles
-       20 = POI markers
-       30 = User marker + accuracy ring
-       40 = Recenter button
   ------------------------------------------------------------- */
 
   .map-shell {
@@ -116,5 +111,5 @@
 
 <!-- Recenter Button -->
 <div class="recenter-btn" bind:this={recenterButton}>
-  <img src="{base}/icons/Recenter.png" alt="recenter" />
+  <img src={`${base}/icons/Recenter.png`} alt="recenter" />
 </div>

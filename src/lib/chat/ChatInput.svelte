@@ -1,16 +1,17 @@
 <!-- ------------------------------------------------------------
-     CHATINPUT.SVELTE — FYTRUP Alpha10
-     Floating message input bar (camera → input → send)
-     Mobile-first, safe-area aware, theme-driven
-     Fully GitHub Pages compatible (uses $app/paths base prefix)
+     CHATINPUT.SVELTE — FYTRUP Alpha10 (Final REM + GH Pages)
+     Floating message input bar
+     • Camera + send actions
+     • Safe-area aware
+     • Theme-driven
+     • Uses base path for GitHub Pages compatibility
 ------------------------------------------------------------- -->
 
 <script>
   import { createEventDispatcher } from "svelte";
-  import { base } from "$app/paths";   // <-- CRITICAL for GitHub Pages
+  import { base } from "$app/paths";
 
   const dispatch = createEventDispatcher();
-
   let message = "";
 
   function handleSend() {
@@ -27,7 +28,7 @@
 <style>
   .input-wrap {
     position: fixed;
-    bottom: calc(env(safe-area-inset-bottom) + 14px);
+    bottom: calc(env(safe-area-inset-bottom) + 0.9rem);
     left: 0;
     width: 100%;
 
@@ -35,26 +36,26 @@
     justify-content: center;
     z-index: 99;
 
-    pointer-events: none; /* wrapper ignored */
+    pointer-events: none;
   }
 
   .input-bar {
     width: 92%;
-    max-width: 620px;
+    max-width: 38rem; /* ~608px */
 
     background: var(--input-bg);
     border: 1px solid var(--input-border);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
 
-    border-radius: 28px;
-    padding: 8px 12px;
+    border-radius: 1.75rem;
+    padding: 0.6rem 0.75rem;
 
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 0.65rem;
 
-    pointer-events: all; /* bar is interactive */
+    pointer-events: all;
   }
 
   button {
@@ -62,8 +63,8 @@
     border: none;
     padding: 0;
     cursor: pointer;
-    width: 32px;
-    height: 32px;
+    width: 2rem;
+    height: 2rem;
   }
 
   button img {
@@ -78,17 +79,18 @@
     border: none;
     outline: none;
 
-    font-size: 16px;
+    font-size: 1rem;
     color: var(--text);
   }
 
   @media (max-width: 420px) {
     .input-bar {
       width: 94%;
-      padding: 10px 14px;
+      padding: 0.75rem 0.9rem;
     }
+
     input {
-      font-size: 16.5px;
+      font-size: 1.05rem;
     }
   }
 </style>
@@ -98,7 +100,7 @@
 
     <!-- Camera -->
     <button on:click={openCamera}>
-      <img src="{base}/icons/Camera.png" alt="camera" />
+      <img src={base + "/icons/Camera.png"} alt="camera" />
     </button>
 
     <!-- Input -->
@@ -110,7 +112,7 @@
 
     <!-- Send -->
     <button on:click={handleSend}>
-      <img src="{base}/icons/send-icon.png" alt="send" />
+      <img src={base + "/icons/send-icon.png"} alt="send" />
     </button>
 
   </div>

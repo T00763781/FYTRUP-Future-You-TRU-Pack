@@ -1,15 +1,15 @@
 <!-- ------------------------------------------------------------
-     +LAYOUT.SVELTE — FYTRUP Alpha10 ROOT APP SHELL (Final A)
+     +LAYOUT.SVELTE — FYTRUP Alpha10 ROOT APP SHELL (Final A+RFS)
      Purpose:
        • Lock page zoom (map handles zoom)
        • Apply theme before first paint
        • Load global theme CSS
        • Initialize theme logic
+       • Install Root Font Scaling (RFS hybrid)
        • Render fixed header
        • Render map/camera window (42vh)
        • Render chat region
        • Run splash fade-out
-       • Remain SSR-safe
 ------------------------------------------------------------- -->
 
 <svelte:head>
@@ -22,11 +22,31 @@
              user-scalable=no"
   />
 
-  <!-- First-paint theme lock (no white flash) -->
+  <!-- First-paint theme lock -->
   <script>
     (function () {
       const theme = localStorage.getItem("fytrup-theme") || "tru";
       document.documentElement.setAttribute("data-theme", theme);
+    })();
+
+    /* --------------------------------------------
+       Root Font Scaling (RFS hybrid)
+       - Scales to device width using clamp()
+       - Insulates against extremely small or huge phones
+       - Every rem inside the app now adapts visually
+    --------------------------------------------- */
+    (function () {
+      const base = 16; // desktop baseline
+      const min = 15;  // mobile minimum
+      const max = 18;  // large phones/tablets
+
+      const width = window.innerWidth;
+      const scaled = Math.min(
+        max,
+        Math.max(min, (width / 375) * base)
+      );
+
+      document.documentElement.style.fontSize = scaled + "px";
     })();
   </script>
 </svelte:head>
@@ -34,7 +54,7 @@
 <script>
   import { onMount, onDestroy } from "svelte";
 
-  /* GLOBAL THEME CSS — required for full-app theming */
+  /* GLOBAL THEME CSS */
   import "$lib/theme/themes.css";
 
   import { initTheme } from "$lib/theme/store.js";
@@ -51,13 +71,10 @@
   let unsubscribe;
 
   onMount(() => {
-    // Initialize theme engine (after FP lock)
     initTheme();
-
-    // Subscribe to global app state
     unsubscribe = appState.subscribe((v) => (state = v));
 
-    // Splash fade-out timing
+    // Splash fade
     setTimeout(() => (showSplash = false), 2200);
   });
 
@@ -68,9 +85,8 @@
 
 <style>
   /* ------------------------------------------------------------
-       ROOT CONTAINER
-       Full-height mobile app shell
-------------------------------------------------------------- */
+       ROOT
+  ------------------------------------------------------------- */
   .app-root {
     position: relative;
     width: 100%;
@@ -84,9 +100,7 @@
     padding-bottom: env(safe-area-inset-bottom);
   }
 
-  /* ------------------------------------------------------------
-       FIXED HEADER (top)
-------------------------------------------------------------- */
+  /* HEADER */
   .layer-header {
     position: absolute;
     top: 0;
@@ -94,11 +108,7 @@
     z-index: 30;
   }
 
-  /* ------------------------------------------------------------
-       MAP WINDOW
-       Fixed height: 42vh
-       Layer sits between header and chat
-------------------------------------------------------------- */
+  /* MAP WINDOW */
   .layer-map {
     position: absolute;
     top: calc(58px + env(safe-area-inset-top));
@@ -108,10 +118,7 @@
     z-index: 10;
   }
 
-  /* ------------------------------------------------------------
-       CHAT REGION
-       Occupies remaining space below map
-------------------------------------------------------------- */
+  /* CHAT REGION */
   .layer-chat {
     position: absolute;
     top: calc(58px + env(safe-area-inset-top) + 42vh);
@@ -121,9 +128,7 @@
     z-index: 20;
   }
 
-  /* ------------------------------------------------------------
-       SPLASH OVERLAY
-------------------------------------------------------------- */
+  /* SPLASH */
   .layer-splash {
     position: absolute;
     inset: 0;
@@ -133,7 +138,6 @@
   .fade {
     transition: opacity 0.6s ease;
   }
-
   .hidden {
     opacity: 0;
     pointer-events: none;
@@ -141,26 +145,21 @@
 </style>
 
 <div class="app-root">
-  <!-- HEADER -->
   <div class="layer-header">
     <Header />
   </div>
 
-  <!-- MAP / CAMERA WINDOW -->
   <div class="layer-map">
     <ModeSwitcher showCamera={state.showCamera} />
   </div>
 
-  <!-- CHAT REGION -->
   <div class="layer-chat">
     <ChatWrapper />
   </div>
 
-  <!-- SPLASH OVERLAY -->
   <div class="layer-splash fade {showSplash ? '' : 'hidden'}">
     <Splash />
   </div>
 
-  <!-- ROUTE SLOT -->
   <slot />
 </div>

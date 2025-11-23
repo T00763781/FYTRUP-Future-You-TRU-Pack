@@ -1,22 +1,19 @@
 <!-- ------------------------------------------------------------
-     CHATSHELL.SVELTE — FYTRUP Alpha10 (Persona names + base path)
+     CHATSHELL.SVELTE — FYTRUP Alpha10 (REM-scaled final)
      PURPOSE:
        • Render incoming chat messages
-       • Correct persona avatars
-       • Correct persona display names
-       • Fully GitHub Pages compatible using $app/paths base prefix
+       • Persona avatars + names
+       • REM-based scaling for mobile readability
+       • Uses `${base}` for GitHub Pages compatibility
 ------------------------------------------------------------- -->
 
 <script>
   import Message from "./Message.svelte";
-  import { base } from "$app/paths";   // <-- CRITICAL FIX for GitHub Pages
+  import { base } from "$app/paths";
 
   export let messages = [];
 
-  /* -----------------------------------------
-     Persona registry (avatar + display name)
-     All static assets must use `${base}/...`
-  ----------------------------------------- */
+  /* Persona registry */
   const personas = {
     wolfie: {
       avatar: `${base}/characters/wolfie-icon-neutral.png`,
@@ -57,67 +54,31 @@
     -webkit-font-smoothing: antialiased;
   }
 
+  /* ------------------------------------------------------------
+       CHAT SHELL (REM-scaled)
+  ------------------------------------------------------------- */
   .chat-shell {
     width: 100%;
-    max-width: 600px;
+    max-width: 38rem;        /* ~600px */
     margin: 0 auto;
-    padding: 12px;
+
+    padding: 0.9rem;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 1rem;
+
     overflow-y: auto;
     scrollbar-width: none;
   }
+
   .chat-shell::-webkit-scrollbar {
     display: none;
   }
 
-  .avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
-
-  .bubble {
-    background: rgba(255, 255, 255, 0.16);
-    color: white;
-    padding: 10px 14px;
-    border-radius: 12px;
-    font-size: 16px;
-    line-height: 1.45;
-    max-width: 85%;
-    word-wrap: break-word;
-  }
-
-  .system {
-    align-self: center;
-    background: rgba(255, 255, 255, 0.18);
-    padding: 8px 12px;
-    border-radius: 10px;
-    font-size: 15px;
-    max-width: 90%;
-  }
-
-  .me {
-    margin-left: auto;
-    background: rgba(255, 255, 255, 0.28);
-  }
-
   @media (max-width: 420px) {
-    .bubble {
-      font-size: 16.5px;
-      padding: 12px 16px;
-    }
-
-    .avatar {
-      width: 28px;
-      height: 28px;
-    }
-
     .chat-shell {
-      padding: 10px;
-      gap: 12px;
+      padding: 0.75rem;
+      gap: 0.85rem;
     }
   }
 </style>
