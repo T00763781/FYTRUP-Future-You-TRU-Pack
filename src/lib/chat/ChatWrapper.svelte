@@ -1,78 +1,106 @@
 <!-- ------------------------------------------------------------
-     CHAT WRAPPER — DEV SHELL (MOBILE-SCALED)
-     PURPOSE: Bridge between layout and ChatShell.
-              Applies mobile-safe column + safe-area padding.
+     CHATWRAPPER.SVELTE — FYTRUP Alpha10 Chat Frame (Patched)
+     Purpose:
+       • Scrollable chat inside layer-chat region
+       • Flexible height under map window
+       • Floating input bar fixed at bottom of layer-chat
 ------------------------------------------------------------- -->
 
 <script>
+  import { onDestroy } from "svelte";
   import ChatShell from "./ChatShell.svelte";
+  import ChatInput from "./ChatInput.svelte";
+  import { appState } from "$lib/state/appState.js";
 
-  /* ------------------------------------------------------------
-       TEMPORARY DEV MESSAGES
-       (proves bubble loop, avatars, and layout)
-  ------------------------------------------------------------- */
-  const messages = [
-    {
-      role: "system",
-      text: "Pack Chat dev shell is live. This preview shows spacing, avatars, and bubble rendering."
-    },
-    {
-      role: "wolfie",
-      text: "Hey Packmate — I’ll take point on campus-navigation once the Cloudflare worker is wired up."
-    },
-    {
-      role: "atlas",
-      text: "I’m here for academic/building flavour. For now I’m just helping test chat visuals."
-    },
-    {
-      role: "user",
-      text: "Perfect. Mobile readability looks way better now."
-    }
-  ];
+  let state;
+  const unsubscribe = appState.subscribe(v => (state = v));
+  onDestroy(() => unsubscribe());
+
+  function handleSend(msg) {
+    appState.update(s => {
+      s.messages = [...s.messages, { role: "user", text: msg }];
+      return s;
+    });
+  }
+
+  function handleCamera() {
+    appState.update(s => {
+      s.showCamera = true;
+      return s;
+    });
+  }
 </script>
 
-<!-- ------------------------------------------------------------
-     MOBILE-SAFE WRAPPER
-     Positions ChatShell inside a centered, padded column.
-------------------------------------------------------------- -->
 <style>
-  .wrapper {
+  /* Outer wrapper simply fills layer-chat */
+  .chat-wrapper {
+    position: relative;
     width: 100%;
     height: 100%;
-    display: flex;
-    justify-content: center;
 
-    /* Safe-area aware */
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
+    display: flex;
+    flex-direction: column;
 
     overflow: hidden;
   }
 
-  .column {
-    width: 100%;
-    max-width: 620px;
-    height: 100%;
-    padding: 0 12px; /* matched to ChatShell spacing */
-    display: flex;
-    flex-direction: column;
+  /* Scroll region — flex:1 inside wrapper */
+  .chat-scroll {
+    flex: 1;
+    overflow-y: auto;
+
+    padding: 16px 12px 80px; /* room for input bar */
+    scrollbar-width: none;
+  }
+  .chat-scroll::-webkit-scrollbar {
+    display: none;
   }
 
-  @media (max-width: 420px) {
-    .column {
-      max-width: 92%;
-      padding: 0 10px;
-    }
+  /* constrain message width */
+  .column {
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* Floating input bar at bottom of wrapper */
+  .input-bar {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+
+    display: flex;
+    justify-content: center;
+
+    padding: 0 12px 8px;
+  }
+
+  .input-inner {
+    width: 100%;
+    max-width: 640px;
   }
 </style>
 
-<!-- ------------------------------------------------------------
-     RENDER
-------------------------------------------------------------- -->
-<div class="wrapper">
-  <div class="column">
-    <ChatShell {messages} />
+<div class="chat-wrapper">
+
+  <!-- SCROLLING MESSAGE COLUMN -->
+  <div class="chat-scroll">
+    <div class="column">
+      <ChatShell messages={state.messages} />
+    </div>
   </div>
+
+  <!-- FLOATING INPUT BAR -->
+  <div class="input-bar">
+    <div class="input-inner">
+      <ChatInput
+        on:send={(e) => handleSend(e.detail)}
+        on:camera={handleCamera}
+      />
+    </div>
+  </div>
+
 </div>

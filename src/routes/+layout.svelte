@@ -1,87 +1,155 @@
 <!-- ------------------------------------------------------------
-     +LAYOUT.SVELTE — ROOT SHELL
-     Controls: Splash → Fade → Chat (via ChatWrapper)
+     +LAYOUT.SVELTE — FYTRUP Alpha10 ROOT APP SHELL (Final)
+     Purpose:
+       • Apply theme *before* first paint (no white flash)
+       • Load global theme CSS
+       • Initialize theme system
+       • Render fixed header
+       • Render map/camera window (42vh)
+       • Render chat region
+       • Handle splash overlay
+       • SSR-safe state subscription
 ------------------------------------------------------------- -->
 
 <script>
-  import { onMount } from "svelte";
-  import Splash from "$lib/ui/Splash.svelte";
+  import { onMount, onDestroy } from "svelte";
 
-  /* Correct + tree-verified import */
+  /* GLOBAL THEME CSS */
+  import "$lib/theme/themes.css";
+
+  import { initTheme } from "$lib/theme/store.js";
+
+  import Splash from "$lib/ui/Splash.svelte";
+  import Header from "$lib/ui/Header.svelte";
+  import ModeSwitcher from "$lib/ui/ModeSwitcher.svelte";
   import ChatWrapper from "$lib/chat/ChatWrapper.svelte";
 
+  import { appState } from "$lib/state/appState.js";
+
   let showSplash = true;
+  let state = {};
+  let unsubscribe;
 
   onMount(() => {
-    setTimeout(() => {
-      showSplash = false;
-    }, 2500);
+    initTheme(); // Hydrates stores — theme is already pre-applied in <head>
+
+    unsubscribe = appState.subscribe((v) => (state = v));
+
+    setTimeout(() => (showSplash = false), 2200);
+  });
+
+  onDestroy(() => {
+    if (unsubscribe) unsubscribe();
   });
 </script>
 
 <!-- ------------------------------------------------------------
-     MOBILE-FIRST ROOT LAYOUT
-     Applies a consistent padded, centered viewport for all devices
+     FIRST PAINT PATCH — Runs *before* SvelteKit loads
 ------------------------------------------------------------- -->
+<svelte:head>
+  <script>
+    try {
+      const saved = localStorage.getItem("fytrup-theme") || "tru";
+      document.documentElement.dataset.theme = saved;
+    } catch (_) {
+      document.documentElement.dataset.theme = "tru";
+    }
+  </script>
+</svelte:head>
+
 <style>
-  .root {
+  /* ------------------------------------------------------------
+       ROOT WRAPPER
+       Full-height, safe-area aware, theme-driven
+  ------------------------------------------------------------- */
+  .app-root {
+    position: relative;
     width: 100%;
     height: 100vh;
-    background: #003e51;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     overflow: hidden;
 
-    /* Avoid layout jump under mobile browser chrome */
+    background: var(--bg);
+    color: var(--text);
+
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
-    padding-left: env(safe-area-inset-left);
-    padding-right: env(safe-area-inset-right);
+  }
+
+  /* ------------------------------------------------------------
+       FIXED HEADER
+  ------------------------------------------------------------- */
+  .layer-header {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 30;
+  }
+
+  /* ------------------------------------------------------------
+       MAP WINDOW — 42vh
+  ------------------------------------------------------------- */
+  .layer-map {
+    position: absolute;
+    top: calc(58px + env(safe-area-inset-top));
+    width: 100%;
+    height: 42vh;
+    overflow: hidden;
+    z-index: 10;
+  }
+
+  /* ------------------------------------------------------------
+       CHAT REGION — fills remaining space below map
+  ------------------------------------------------------------- */
+  .layer-chat {
+    position: absolute;
+    top: calc(58px + env(safe-area-inset-top) + 42vh);
+    bottom: 0;
+    width: 100%;
+    overflow: hidden;
+    z-index: 20;
+  }
+
+  /* ------------------------------------------------------------
+       SPLASH OVERLAY
+  ------------------------------------------------------------- */
+  .layer-splash {
+    position: absolute;
+    inset: 0;
+    z-index: 40;
   }
 
   .fade {
     transition: opacity 0.6s ease;
   }
-
   .hidden {
     opacity: 0;
     pointer-events: none;
   }
-
-  /* Chat/Splash column wrapper */
-  .column {
-    width: 100%;
-    max-width: 620px;     /* readable chat width */
-    margin: 0 auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  /* Mobile tightening */
-  @media (max-width: 420px) {
-    .column {
-      max-width: 92%;
-    }
-  }
 </style>
 
-<!-- ------------------------------------------------------------
-     UI LAYERS
-------------------------------------------------------------- -->
-<div class="root">
+<div class="app-root">
+
+  <!-- HEADER -->
+  <div class="layer-header">
+    <Header />
+  </div>
+
+  <!-- MAP / CAMERA WINDOW -->
+  <div class="layer-map">
+    <ModeSwitcher showCamera={state.showCamera} />
+  </div>
+
+  <!-- CHAT BODY -->
+  <div class="layer-chat">
+    <ChatWrapper />
+  </div>
 
   <!-- SPLASH -->
-  <div class="column fade {showSplash ? '' : 'hidden'}">
+  <div class="layer-splash fade {showSplash ? '' : 'hidden'}">
     <Splash />
   </div>
 
-  <!-- CHAT -->
-  {#if !showSplash}
-    <div class="column">
-      <ChatWrapper />
-    </div>
-  {/if}
+  <!-- SVELTEKIT ROUTE SLOT -->
+  <slot />
 
 </div>

@@ -1,0 +1,67 @@
+/* ------------------------------------------------------------
+   THEMES.CSS — FYTRUP Alpha10 Global Theme Variables
+   Loaded globally by +layout.svelte
+------------------------------------------------------------- */
+
+/* ------- TRU DEFAULT THEME -------------------------------- */
+:root[data-theme="tru"] {
+  --bg: #004c63;
+  --text: #e6f7ff;
+
+  --header-bg: rgba(0, 40, 60, 0.6);
+  --header-text: #ffffff;
+
+  --accent-teal: #21d4c2;
+  --accent-yellow: #fbd34d;
+  --accent-green: #58d68d;
+  --accent-orange: #ff8c42;
+
+  --bubble-bg: rgba(255, 255, 255, 0.16);
+  --bubble-user-bg: rgba(255, 255, 255, 0.28);
+  --bubble-system-bg: rgba(255, 255, 255, 0.18);
+}
+
+/* ------- NIGHT THEME ------------------------------------- */
+:root[data-theme="night"] {
+  --bg: #0b0f16;
+  --text: #d5e1f0;
+
+  --header-bg: rgba(20, 20, 30, 0.75);
+  --header-text: #ffffff;
+
+  --accent-teal: #20c1b0;
+  --accent-yellow: #e6bf3e;
+  --accent-green: #4ec28b;
+  --accent-orange: #ff7841;
+
+  --bubble-bg: rgba(255, 255, 255, 0.15);
+  --bubble-user-bg: rgba(255, 255, 255, 0.25);
+  --bubble-system-bg: rgba(255, 255, 255, 0.20);
+}
+
+/* ------- SUNSET THEME ------------------------------------ */
+:root[data-theme="sunset"] {
+  --bg: linear-gradient(180deg, #ff9966, #ff5e62);
+  --text: #ffffff;
+
+  --header-bg: rgba(255, 255, 255, 0.18);
+  --header-text: #ffffff;
+
+  --accent-teal: #ffffff;
+  --accent-yellow: #ffe28c;
+  --accent-green: #ffeaa7;
+  --accent-orange: #ffcc99;
+
+  --bubble-bg: rgba(255, 255, 255, 0.18);
+  --bubble-user-bg: rgba(255, 255, 255, 0.25);
+  --bubble-system-bg: rgba(255, 255, 255, 0.22);
+}
+
+/* ------- GLOBAL RESET ------------------------------------- */
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
