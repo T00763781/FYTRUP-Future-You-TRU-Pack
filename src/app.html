@@ -3,16 +3,14 @@
   <head>
     <meta charset="utf-8" />
 
-    <!-- App Icon -->
     <link rel="icon" href="%sveltekit.assets%/favicon.png" />
 
-    <!-- PWA Manifest (NEVER use %sveltekit.assets% here) -->
-    <link rel="manifest" href="manifest.json" />
+    <!-- PWA Manifest (MUST be relative for SvelteKit prerender/GitHub Pages) -->
+    <link rel="manifest" href="%sveltekit.assets%/manifest.json">
 
-    <!-- iOS Icons (must be relative to /static) -->
-    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <!-- iOS Icons -->
+    <link rel="apple-touch-icon" href="%sveltekit.assets%/icons/icon-192.png" />
 
-    <!-- Viewport: required for standalone/fullscreen + safe-area support -->
     <meta
       name="viewport"
       content="
@@ -25,7 +23,7 @@
       "
     />
 
-    <!-- Android theme color -->
+    <!-- Android -->
     <meta name="theme-color" content="#004c63" />
 
     <!-- iOS Standalone Mode -->
@@ -38,14 +36,12 @@
 
   <body data-theme="tru">
     <script>
-      /* Prevent browser scroll restoration — required for PWA fullscreen */
       if ("scrollRestoration" in history) {
         history.scrollRestoration = "manual";
       }
 
-      /* Register service worker (must be absolute path, not %sveltekit.assets%) */
       if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("/FYTRUP-alpha10/service-worker.js").catch(console.error);
+        navigator.serviceWorker.register("%sveltekit.assets%/service-worker.js");
       }
     </script>
 
