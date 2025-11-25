@@ -4,13 +4,14 @@
        • Persona avatars + persona names
        • Responsive REM-based text scaling
        • Glassmorphic TRU chat bubbles
+       • Banner-style system messages (Option A)
 ------------------------------------------------------------- -->
 
 <script>
   export let sender = "system";   
   export let avatar = "";         
   export let name = "";           
-  export let text = "";           
+  export let text = "";
 </script>
 
 <style>
@@ -44,6 +45,43 @@
   }
 
   /* ------------------------------------------------------------
+       BANNER SYSTEM MESSAGE (Option A)
+  ------------------------------------------------------------- */
+  .system-banner {
+    width: 100%;
+    text-align: center;
+
+    font-size: 0.85rem;
+    line-height: 1.35;
+    color: var(--tru-teal);
+    opacity: 0.9;
+    font-weight: 600;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    margin: 0.75rem 0;
+    letter-spacing: 0.015em;
+  }
+
+  .system-banner::before,
+  .system-banner::after {
+    content: "";
+    flex: 1;
+    border-bottom: 1px solid rgba(255,255,255,0.25);
+    margin: 0 0.75rem;
+    opacity: 0.35;
+  }
+
+  @media (max-width: 420px) {
+    .system-banner {
+      font-size: 0.9rem;
+      margin: 0.8rem 0;
+    }
+  }
+
+  /* ------------------------------------------------------------
        AVATAR COLUMN — scaled with REM
   ------------------------------------------------------------- */
   .avatar-col {
@@ -65,7 +103,7 @@
 
   .name {
     margin-top: 0.25rem;
-    font-size: 0.75rem;     /* 12px → REM */
+    font-size: 0.75rem;
     line-height: 1.1;
     opacity: 0.78;
     color: var(--text);
@@ -85,7 +123,7 @@
   }
 
   /* ------------------------------------------------------------
-       BUBBLE — REM text scaling
+       CHAT BUBBLE — REM text scaling
   ------------------------------------------------------------- */
   .bubble {
     max-width: 80%;
@@ -97,7 +135,7 @@
     padding: 0.85rem 1rem;
     border-radius: 0.9rem;
 
-    font-size: 1rem;              /* main fix */
+    font-size: 1rem;
     line-height: 1.45;
     color: white;
     word-break: break-word;
@@ -108,16 +146,9 @@
     border-color: var(--bubble-border-user);
   }
 
-  .system {
-    color: var(--tru-teal);
-    font-weight: 600;
-    background: rgba(255,255,255,0.10);
-    border-color: rgba(255,255,255,0.22);
-  }
-
   @media (max-width: 420px) {
     .bubble {
-      font-size: 1.05rem;   /* slightly larger on small phones */
+      font-size: 1.05rem;
       padding: 0.9rem 1.05rem;
     }
   }
@@ -126,21 +157,25 @@
 <!-- ------------------------------------------------------------
      RENDER
 ------------------------------------------------------------- -->
-<div class="row {sender === 'user' ? 'me' : ''}">
 
-  <!-- Persona column for non-user senders -->
-  {#if sender !== 'user' && avatar}
-    <div class="avatar-col">
-      <img class="avatar" src={avatar} alt={sender} />
-      {#if name}
-        <div class="name">{name}</div>
-      {/if}
+<!-- SYSTEM BANNER MESSAGE (Option A) -->
+{#if sender === "system"}
+  <div class="system-banner">{text}</div>
+{:else}
+  <!-- NON-SYSTEM MESSAGE (bubble with optional avatar) -->
+  <div class="row {sender === 'user' ? 'me' : ''}">
+
+    {#if sender !== 'user' && avatar}
+      <div class="avatar-col">
+        <img class="avatar" src={avatar} alt={sender} />
+        {#if name}
+          <div class="name">{name}</div>
+        {/if}
+      </div>
+    {/if}
+
+    <div class="bubble">
+      {text}
     </div>
-  {/if}
-
-  <!-- Bubble -->
-  <div class="bubble {sender === 'system' ? 'system' : ''}">
-    {text}
   </div>
-
-</div>
+{/if}

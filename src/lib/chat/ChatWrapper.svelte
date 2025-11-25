@@ -3,12 +3,19 @@
      PURPOSE:
        • Scrollable chat region below map
        • Floating input bar reacts to keyboard height
-       • Uses visualViewport when available (iOS/Android)
-       • REM-scaled, auto-scroll, SSR-safe
+       • Routes toggleCamera → upward to +layout
+       • Routes qrResult → upward to +layout (QR prep)
+       • Does NOT modify appState itself except for send()
 ------------------------------------------------------------- -->
 
 <script>
-  import { onMount, onDestroy, afterUpdate } from "svelte";
+  import {
+    onMount,
+    onDestroy,
+    afterUpdate,
+    createEventDispatcher
+  } from "svelte";
+
   import ChatShell from "./ChatShell.svelte";
   import ChatInput from "./ChatInput.svelte";
   import { appState } from "$lib/state/appState.js";
@@ -20,18 +27,33 @@
   const unsubscribe = appState.subscribe((v) => (state = v));
 
   /* --------------------------------------------
+     DISPATCH UPSTREAM → +layout.svelte
+  -------------------------------------------- */
+  const dispatch = createEventDispatcher();
+
+  // camera toggle from ChatInput → upward to layout
+  function forwardToggleCamera() {
+    dispatch("toggleCamera");
+  }
+
+  // QR result from CameraView → upward to layout
+  function forwardQR(e) {
+    dispatch("qrResult", e.detail);
+  }
+
+  /* --------------------------------------------
      DOM REFS
   -------------------------------------------- */
   let wrapperEl;   // root .chat-wrapper
   let scrollEl;    // .chat-scroll
 
   /* --------------------------------------------
-     KEYBOARD OFFSET (updated via visualViewport)
+     KEYBOARD OFFSET (via visualViewport)
   -------------------------------------------- */
   let keyboardOffset = 0;
 
   /* --------------------------------------------
-     AUTO-SCROLL when messages change
+     AUTO-SCROLL when messages update
   -------------------------------------------- */
   let lastMessageCount = 0;
 
@@ -48,7 +70,7 @@
   });
 
   /* --------------------------------------------
-     KEYBOARD HEIGHT HANDLING (only in browser)
+     KEYBOARD HEIGHT HANDLING (mobile)
   -------------------------------------------- */
   function updateKeyboardOffset() {
     const vv = window.visualViewport;
@@ -58,14 +80,9 @@
       return;
     }
 
-    // difference between layout viewport and visualViewport bottom
     const bottomInset = window.innerHeight - (vv.height + vv.offsetTop);
 
-    if (bottomInset > 80) {
-      keyboardOffset = bottomInset;
-    } else {
-      keyboardOffset = 0;
-    }
+    keyboardOffset = bottomInset > 80 ? bottomInset : 0;
 
     wrapperEl?.style.setProperty("--kb-offset", keyboardOffset + "px");
 
@@ -75,14 +92,12 @@
   }
 
   onMount(() => {
-    // Attach listeners ONLY in browser
     if (typeof window !== "undefined" && window.visualViewport) {
       window.visualViewport.addEventListener("resize", updateKeyboardOffset);
       window.visualViewport.addEventListener("scroll", updateKeyboardOffset);
       updateKeyboardOffset();
     }
 
-    // Initial scroll once mounted
     setTimeout(() => {
       if (scrollEl) scrollEl.scrollTop = scrollEl.scrollHeight;
     }, 50);
@@ -97,7 +112,7 @@
   });
 
   /* --------------------------------------------
-     MESSAGE ACTIONS
+     SEND ACTION (appState mutation allowed)
   -------------------------------------------- */
   function handleSend(msg) {
     appState.update((s) => {
@@ -105,18 +120,11 @@
       return s;
     });
   }
-
-  function handleCamera() {
-    appState.update((s) => {
-      s.showCamera = true;
-      return s;
-    });
-  }
 </script>
 
 <style>
   /* ------------------------------------------------------------
-       WRAPPER ROOT — keyboard offset applied via CSS variable
+       WRAPPER ROOT — keyboard offset via CSS var
   ------------------------------------------------------------- */
   .chat-wrapper {
     position: relative;
@@ -131,7 +139,7 @@
   }
 
   /* ------------------------------------------------------------
-       SCROLLABLE CHAT LIST — REM padding
+       SCROLLABLE CHAT LIST
   ------------------------------------------------------------- */
   .chat-scroll {
     flex: 1;
@@ -163,7 +171,7 @@
   }
 
   /* ------------------------------------------------------------
-       FLOATING INPUT BAR — raised by keyboard offset
+       FLOATING INPUT BAR
   ------------------------------------------------------------- */
   .input-bar {
     position: absolute;
@@ -191,12 +199,13 @@
     </div>
   </div>
 
-  <!-- FLOATING INPUT BAR -->
+  <!-- INPUT BAR -->
   <div class="input-bar">
     <div class="input-inner">
       <ChatInput
+        showCamera={state.showCamera}
         on:send={(e) => handleSend(e.detail)}
-        on:camera={handleCamera}
+        on:toggleCamera={forwardToggleCamera}
       />
     </div>
   </div>

@@ -1,11 +1,14 @@
 <!-- ------------------------------------------------------------
-     MAPVIEW.SVELTE — FYTRUP Alpha10 Final (Premium Layering)
-     GitHub Pages–safe (uses $app/paths base prefix)
+     MAPVIEW.SVELTE — FYTRUP Alpha10 (Persistent Map + Store Invalidate)
+     • Survives camera toggle 100% reliably
+     • Calls map.invalidateSize() when showCamera → false
+     • Still uses GH-Pages-safe asset paths via $app/paths
 ------------------------------------------------------------- -->
 
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { base } from "$app/paths"; // CRITICAL FOR GH PAGES
+  import { base } from "$app/paths";
+  import { appState } from "$lib/state/appState.js";
 
   let map;
   let mapContainer;
@@ -16,7 +19,23 @@
   let initPOIMarkers;
   let watchUserLocation;
 
+  // teardown
   let cleanup = () => {};
+
+  // store subscription
+  let state = {};
+  const unsub = appState.subscribe((v) => {
+    state = v;
+
+    // ------------------------------------------------------------
+    // THE FIX:
+    // When camera turns OFF (showCamera = false), map becomes visible.
+    // Leaflet must be invalidated after a frame.
+    // ------------------------------------------------------------
+    if (map && v.showCamera === false) {
+      requestAnimationFrame(() => map.invalidateSize(true));
+    }
+  });
 
   onMount(async () => {
     const core = await import("./mapCore.js");
@@ -27,24 +46,38 @@
     initPOIMarkers = poi.initPOIMarkers;
     watchUserLocation = loc.watchUserLocation;
 
+    // init map
     map = await initMapCore(mapContainer);
     initPOIMarkers(map);
 
-    cleanup = watchUserLocation(
-      map,
-      (newMarker) => (userMarker = newMarker),
-      recenterButton
-    );
+    // location watcher
+    try {
+      const result = watchUserLocation(
+        map,
+        (m) => (userMarker = m),
+        recenterButton
+      );
+      cleanup = typeof result === "function" ? result : () => {};
+    } catch (err) {
+      console.warn("FYTRUP: watchUserLocation failed:", err);
+      cleanup = () => {};
+    }
+
+    // safety: ensure first paint is correct
+    setTimeout(() => map.invalidateSize(true), 150);
   });
 
-  onDestroy(() => cleanup && cleanup());
+  onDestroy(() => {
+    unsub();
+    try {
+      cleanup();
+    } catch (err) {
+      console.warn("FYTRUP: Map cleanup skipped:", err);
+    }
+  });
 </script>
 
 <style>
-  /* ------------------------------------------------------------
-       PREMIUM LAYERING STACK
-  ------------------------------------------------------------- */
-
   .map-shell {
     position: absolute;
     inset: 0;
@@ -109,7 +142,6 @@
 
 <div class="map-shell" bind:this={mapContainer}></div>
 
-<!-- Recenter Button -->
 <div class="recenter-btn" bind:this={recenterButton}>
   <img src={`${base}/icons/Recenter.png`} alt="recenter" />
 </div>

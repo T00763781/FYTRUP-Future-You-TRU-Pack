@@ -3,6 +3,7 @@
 // Central store for:
 //   • Map / Camera mode
 //   • Chat messages
+//   • System message injection for QR scanner
 //   • Future persona context
 //   • Future POI triggers + Worker responses
 //   • UI flags (keyboard, sheets, overlays)
@@ -14,11 +15,10 @@ export const appState = writable({
   // ------------------------------------------------------------
   // MODE LAYER (Map <-> Camera)
   // ------------------------------------------------------------
-  showCamera: false,     // true = CameraView, false = MapView
+  showCamera: false, // true = CameraView, false = MapView
 
   // ------------------------------------------------------------
   // CHAT MESSAGES
-  // These are temporary until the Cloudflare Worker is wired in.
   // Format: { role: "wolfie" | "atlas" | "user" | "system", text }
   // ------------------------------------------------------------
   messages: [
@@ -34,17 +34,49 @@ export const appState = writable({
 
   // ------------------------------------------------------------
   // PERSONA STATE (Future use)
-  // Will eventually route through Worker prompts.
   // ------------------------------------------------------------
-  activePersona: "wolfie",  // placeholder
+  activePersona: "wolfie",
 
   // ------------------------------------------------------------
   // UI FLAGS (Future)
-  // keyboardOpen: will be attached in the ChatWrapper update later
-  // bottomSheetOpen: for POI sheets
-  // overlayVisible: for map callouts, camera safety, etc.
   // ------------------------------------------------------------
   keyboardOpen: false,
   bottomSheetOpen: false,
   overlayVisible: false
 });
+
+// ------------------------------------------------------------
+// SYSTEM MESSAGE HELPERS (QR-ready)
+// ------------------------------------------------------------
+
+export function systemMessage(text) {
+  appState.update((s) => {
+    s.messages = [...s.messages, { role: "system", text }];
+    return s;
+  });
+}
+
+// ------------------------------------------------------------
+// NOTE-EVENT ROUTER
+// Called by: layout → handleQR(e.detail)
+// ------------------------------------------------------------
+
+export function noteEvent(type) {
+  switch (type) {
+    case "invalid":
+      systemMessage("Note not recognized.");
+      break;
+
+    case "duplicate":
+      systemMessage("Note already uploaded.");
+      break;
+
+    case "added":
+      systemMessage("New note added.");
+      break;
+
+    default:
+      systemMessage("Unknown scanner response.");
+      break;
+  }
+}

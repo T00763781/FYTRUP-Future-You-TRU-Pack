@@ -6,6 +6,7 @@
        • Auto-scroll to last message
        • Persona avatars + names
        • GitHub Pages safe (uses `${base}`)
+       • System message banner support (QR prep)
 ------------------------------------------------------------- -->
 
 <script>
@@ -15,11 +16,10 @@
 
   export let messages = [];
 
-  let container;  // outer scroll region
+  let container; // outer scroll region
 
   /* ------------------------------------------------------------
-     Persona Registry
-     (Uses ${base} so GitHub Pages serves icons correctly)
+     Persona Registry (GitHub Pages safe)
   ------------------------------------------------------------- */
   const personas = {
     wolfie: {
@@ -41,7 +41,7 @@
   };
 
   /* ------------------------------------------------------------
-     AUTO-SCROLL (scroll to bottom on every new message)
+     AUTO-SCROLL
   ------------------------------------------------------------- */
   function scrollToBottom() {
     if (!container) return;
@@ -73,21 +73,21 @@
   }
 
   /* ------------------------------------------------------------
-       CHAT SHELL — Full REM scaling
+       CHAT SHELL — REM scaling
   ------------------------------------------------------------- */
   .chat-shell {
     width: 100%;
     max-width: 38rem;
     margin: 0 auto;
 
-    padding: 1rem;        /* consistent with REM-ratio spacing */
+    padding: 1rem;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.85rem; /* slightly tighter so system banners don't create excess space */
 
     overflow-y: auto;
     scrollbar-width: none;
-    overscroll-behavior: contain;   /* prevents bounce during keyboard movement */
+    overscroll-behavior: contain;
   }
 
   .chat-shell::-webkit-scrollbar {
@@ -97,7 +97,7 @@
   @media (max-width: 420px) {
     .chat-shell {
       padding: 0.85rem;
-      gap: 0.85rem;
+      gap: 0.8rem;
     }
   }
 </style>

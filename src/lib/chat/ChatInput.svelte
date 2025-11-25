@@ -1,16 +1,18 @@
 <!-- ------------------------------------------------------------
-     CHATINPUT.SVELTE — FYTRUP Alpha10 (Keyboard-Aware Final)
+     CHATINPUT.SVELTE — FYTRUP Alpha10 (Two-Way Camera Toggle)
      Purpose:
        • Camera + send input bar
-       • Moves cleanly above the keyboard
-       • Works with ChatWrapper --kb-offset
-       • Safe-area + REM scaling
-       • GH Pages compatible (base path)
+       • Emits toggleCamera → ChatWrapper handles state change
+       • Icon reflects global showCamera state (passed via prop)
+       • Moves cleanly above keyboard via --kb-offset
+       • GH Pages safe (uses `${base}`)
 ------------------------------------------------------------- -->
 
 <script>
   import { createEventDispatcher } from "svelte";
   import { base } from "$app/paths";
+
+  export let showCamera = false;   // visual reflection of global state
 
   const dispatch = createEventDispatcher();
   let message = "";
@@ -21,22 +23,20 @@
     message = "";
   }
 
-  function openCamera() {
-    dispatch("camera");
+  // Emit toggle upward — ChatWrapper mutates appState
+  function toggleCamera() {
+    dispatch("toggleCamera");
   }
 </script>
 
 <style>
   /* ------------------------------------------------------------
      INPUT CONTAINER
-     IMPORTANT:
-       - No longer fixed-position
-       - ChatWrapper controls vertical position via --kb-offset
-       - This component simply fills its parent
+     ChatWrapper positions this and handles keyboard offset.
   ------------------------------------------------------------- */
   .input-wrap {
     width: 100%;
-    pointer-events: none;   /* wrapper is ignored so touch passes through */
+    pointer-events: none;
     display: flex;
     justify-content: center;
   }
@@ -48,6 +48,7 @@
 
     background: var(--input-bg);
     border: 1px solid var(--input-border);
+
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
 
@@ -70,7 +71,6 @@
 
     width: 2rem;
     height: 2rem;
-
     flex-shrink: 0;
   }
 
@@ -81,8 +81,7 @@
   }
 
   /* ------------------------------------------------------------
-     TEXT INPUT (REM-based)
-     iOS zoom prevention: ensure >=16px
+     TEXT INPUT — REM-scaled
   ------------------------------------------------------------- */
   input {
     flex: 1;
@@ -90,7 +89,7 @@
     border: none;
     outline: none;
 
-    font-size: 1rem;       /* ≥16px ensures iOS won’t zoom */
+    font-size: 1rem;
     color: var(--text);
 
     padding: 0.15rem 0;
@@ -111,12 +110,15 @@
 <div class="input-wrap">
   <div class="input-bar">
 
-    <!-- Camera -->
-    <button on:click={openCamera}>
-      <img src={`${base}/icons/Camera.png`} alt="camera" />
+    <!-- Camera toggle -->
+    <button on:click={toggleCamera}>
+      <img
+        src={`${base}/icons/${showCamera ? "Camera_selected.png" : "Camera.png"}`}
+        alt="camera toggle"
+      />
     </button>
 
-    <!-- Text Input -->
+    <!-- Text field -->
     <input
       bind:value={message}
       placeholder="Chat with the Pack…"

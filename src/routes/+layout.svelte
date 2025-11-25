@@ -1,5 +1,5 @@
 <!-- ------------------------------------------------------------
-     +LAYOUT.SVELTE — FYTRUP Alpha10
+     +LAYOUT.SVELTE — FYTRUP Alpha10 (Persistent Map + Camera Overlay)
 ------------------------------------------------------------- -->
 
 <svelte:head>
@@ -13,6 +13,7 @@
       document.documentElement.setAttribute("data-theme", theme);
     })();
   </script>
+
   <link rel="manifest" href="%sveltekit.assets%/manifest.json">
 </svelte:head>
 
@@ -24,10 +25,12 @@
 
   import Splash from "$lib/ui/Splash.svelte";
   import Header from "$lib/ui/Header.svelte";
-  import ModeSwitcher from "$lib/ui/ModeSwitcher.svelte";
   import ChatWrapper from "$lib/chat/ChatWrapper.svelte";
 
-  import { appState } from "$lib/state/appState.js";
+  import MapView from "$lib/map/MapView.svelte";
+  import CameraView from "$lib/camera/CameraView.svelte";
+
+  import { appState, noteEvent } from "$lib/state/appState.js";
 
   let showSplash = true;
   let state = {};
@@ -54,17 +57,12 @@
        AUTO URL-BAR HIDE
     ----------------------------- */
     const hideBar = () => {
-      window.scrollTo({
-        top: 1,
-        behavior: "auto"
-      });
+      window.scrollTo({ top: 1, behavior: "auto" });
     };
 
-    // splash ends at 2200 → fade completes ~2300
     setTimeout(() => {
       showSplash = false;
 
-      // allow fade-out to visually complete
       setTimeout(() => {
         hideBar();
         setTimeout(hideBar, 50);
@@ -75,6 +73,21 @@
   });
 
   onDestroy(() => unsubscribe && unsubscribe());
+
+  /* ------------------------------------------------------------
+     CAMERA TOGGLE (from ChatWrapper)
+  ------------------------------------------------------------- */
+  function handleToggleCamera() {
+    appState.update((s) => ({ ...s, showCamera: !s.showCamera }));
+  }
+
+  /* ------------------------------------------------------------
+     QR RESULT ROUTING (from ChatWrapper)
+  ------------------------------------------------------------- */
+  function handleQR(event) {
+    const type = event.detail; 
+    noteEvent(type);
+  }
 </script>
 
 <style>
@@ -111,6 +124,22 @@
     z-index: 10;
   }
 
+  /* CAMERA OVERLAY — sits above map, invisible when not active */
+  .layer-camera {
+    position: absolute;
+    top: calc(58px + env(safe-area-inset-top));
+    width: 100%;
+    height: 42vh;
+    overflow: hidden;
+    z-index: 15;
+    transition: opacity 0.25s ease;
+  }
+
+  .hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
   .layer-chat {
     position: absolute;
     top: calc(58px + env(safe-area-inset-top) + 42vh);
@@ -130,27 +159,40 @@
     transition: opacity 0.6s ease;
   }
 
-  .hidden {
+  .hidden-splash {
     opacity: 0;
     pointer-events: none;
   }
 </style>
 
 <div class="app-root">
-  <div class="layer-header"><Header /></div>
+  
+  <div class="layer-header">
+    <Header />
+  </div>
 
+  <!-- MAP ALWAYS MOUNTED -->
   <div class="layer-map">
-    <ModeSwitcher showCamera={state.showCamera} />
+    <MapView />
   </div>
 
+  <!-- CAMERA OVERLAY (visibility controlled by CSS) -->
+  <div class="layer-camera {state.showCamera ? '' : 'hidden'}">
+    <CameraView />
+  </div>
+
+  <!-- CHAT -->
   <div class="layer-chat">
-    <ChatWrapper />
+    <ChatWrapper
+      showCamera={state.showCamera}
+      on:toggleCamera={handleToggleCamera}
+      on:qrResult={handleQR}
+    />
   </div>
 
-  <div class="layer-splash fade {showSplash ? '' : 'hidden'}">
+  <div class="layer-splash fade {showSplash ? '' : 'hidden-splash'}">
     <Splash />
   </div>
 
   <slot />
 </div>
-
