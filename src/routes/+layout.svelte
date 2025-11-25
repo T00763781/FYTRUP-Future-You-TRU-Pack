@@ -1,12 +1,11 @@
 <!-- ------------------------------------------------------------
-     +LAYOUT.SVELTE — FYTRUP Alpha10 (Final RFS + Zoom Lock)
+     +LAYOUT.SVELTE — FYTRUP Alpha10
 ------------------------------------------------------------- -->
 
 <svelte:head>
-  <!-- Canonical viewport — REQUIRED for mobile zoom lock -->
   <meta name="viewport"
         content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-  
+
   <!-- First-paint theme lock -->
   <script>
     (function () {
@@ -14,6 +13,7 @@
       document.documentElement.setAttribute("data-theme", theme);
     })();
   </script>
+  <link rel="manifest" href="%sveltekit.assets%/manifest.json">
 </svelte:head>
 
 <script>
@@ -35,41 +35,53 @@
 
   onMount(() => {
     initTheme();
-
     unsubscribe = appState.subscribe((v) => (state = v));
 
-    // ------------------------------------------------------------
-    // ROOT FONT SCALING (RFS hybrid, hydrated for reliability)
-    // ------------------------------------------------------------
+    /* ----------------------------
+       ROOT FONT SCALING (RFS)
+    ----------------------------- */
     {
-      const base = 16; // desktop
-      const min = 15; // small phones
-      const max = 19; // large phones
+      const base = 16;
+      const min = 15;
+      const max = 19;
 
-      const width = window.innerWidth;
-      const scaled = Math.min(max, Math.max(min, (width / 375) * base));
-
+      const w = window.innerWidth;
+      const scaled = Math.min(max, Math.max(min, (w / 375) * base));
       document.documentElement.style.fontSize = scaled + "px";
     }
 
-    // Splash fade
-    setTimeout(() => (showSplash = false), 2200);
+    /* ----------------------------
+       AUTO URL-BAR HIDE
+    ----------------------------- */
+    const hideBar = () => {
+      window.scrollTo({
+        top: 1,
+        behavior: "auto"
+      });
+    };
+
+    // splash ends at 2200 → fade completes ~2300
+    setTimeout(() => {
+      showSplash = false;
+
+      // allow fade-out to visually complete
+      setTimeout(() => {
+        hideBar();
+        setTimeout(hideBar, 50);
+        setTimeout(hideBar, 250);
+      }, 100);
+
+    }, 2200);
   });
 
   onDestroy(() => unsubscribe && unsubscribe());
 </script>
 
 <style>
-  /* ------------------------------------------------------------
-     GLOBAL ANTI-ZOOM FOR CHAT/SCROLL REGIONS
-  ------------------------------------------------------------- */
   html, body {
     touch-action: pan-y;
   }
 
-  /* ------------------------------------------------------------
-     ROOT
-  ------------------------------------------------------------- */
   .app-root {
     position: relative;
     width: 100%;
@@ -141,3 +153,4 @@
 
   <slot />
 </div>
+
