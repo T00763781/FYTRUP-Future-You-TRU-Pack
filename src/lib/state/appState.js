@@ -64,7 +64,7 @@ export function systemMessage(text) {
 export function noteEvent(type) {
   switch (type) {
     case "invalid":
-      systemMessage("Note not recognized.");
+      systemMessage("No valid note detected.");
       break;
 
     case "duplicate":

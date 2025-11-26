@@ -1,11 +1,5 @@
 <!-- ------------------------------------------------------------
-     CHATWRAPPER.SVELTE — FYTRUP Alpha10 (Keyboard-Aware Final)
-     PURPOSE:
-       • Scrollable chat region below map
-       • Floating input bar reacts to keyboard height
-       • Routes toggleCamera → upward to +layout
-       • Routes qrResult → upward to +layout (QR prep)
-       • Does NOT modify appState itself except for send()
+     CHATWRAPPER.SVELTE — FYTRUP Alpha10 (Keyboard-Aware Final, QR Patched)
 ------------------------------------------------------------- -->
 
 <script>
@@ -191,6 +185,9 @@
 </style>
 
 <div class="chat-wrapper" bind:this={wrapperEl}>
+
+  <!-- passive listener to capture bubbled CameraView events -->
+  <div on:qrResult={forwardQR} style="display:none"></div>
 
   <!-- SCROLL AREA -->
   <div class="chat-scroll" bind:this={scrollEl}>

@@ -1,100 +1,123 @@
-<!-- ------------------------------------------------------------
-     CAMERAVIEW.SVELTE — FYTRUP Alpha10 (Safe Frame + QR Prep)
-     Purpose:
-       • Camera fits inside .layer-map only (42vh window)
-       • Safe start/stop lifecycle
-       • QR scan hook (dispatches qrResult upward)
-       • SSR safe, GH Pages safe
-------------------------------------------------------------- -->
-
 <script>
   import { onMount, onDestroy, createEventDispatcher } from "svelte";
+  import { decodeFrame } from "$lib/qr/decoder.js";
 
-  let videoEl;
-  let stream = null;
-
-  // Upstream dispatcher → ChatWrapper → +layout → noteEvent()
   const dispatch = createEventDispatcher();
 
-  // ------------------------------------------------------------
-  // Placeholder scan loop (no real decoding yet)
-  // This will later call: dispatch("qrResult", "added" | "invalid" | ...)
-  // ------------------------------------------------------------
-  let scanning = false;
+  let videoEl;
+  let containerEl;
 
-  async function startScanLoop() {
-    if (!videoEl) return;
-    scanning = true;
+  let stream = null;
+  let rafId = null;
 
-    // Future: plug in jsQR / ZXing decoding here
-    while (scanning) {
-      // --------------------------------------------------------
-      // Placeholder: simulate no detection
-      // Later replaced with:
-      //   const frame = getImageDataFrom(videoEl)
-      //   const result = jsQR(...)
-      //   if (result) dispatch("qrResult", classify(result.data))
-      // --------------------------------------------------------
+  // intelligent object-fit state
+  let objectFit = "contain";   // dynamically updated
+  let objectPosition = "center center";
 
-      await new Promise(r => setTimeout(r, 300)); // gentle polling
+  // scanning guard
+  let lastPayload = null;
+  let lastTime = 0;
+
+  // Hybrid mode engine:
+  // Compare camera AR vs container AR and pick best-fit strategy
+  function updateFitMode() {
+    if (!videoEl || !containerEl) return;
+
+    const vw = videoEl.videoWidth;
+    const vh = videoEl.videoHeight;
+    if (!vw || !vh) return;
+
+    const cw = containerEl.clientWidth;
+    const ch = containerEl.clientHeight;
+    if (!cw || !ch) return;
+
+    const videoAR = vw / vh;
+    const containerAR = cw / ch;
+
+    // Intelligent hybrid rules:
+    // 1. If video is WIDER than the container → contain (avoid vertical crop)
+    // 2. If video is TALLER than container → cover (avoid letterboxing)
+    if (videoAR > containerAR) {
+      objectFit = "contain";   // preserve full frame horizontally
+    } else {
+      objectFit = "cover";     // maintain full-bleed experience vertically
     }
   }
 
-  // ------------------------------------------------------------
-  // CAMERA START
-  // ------------------------------------------------------------
   onMount(async () => {
     try {
       stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "environment" }
       });
 
-      if (videoEl) {
-        videoEl.srcObject = stream;
-        await videoEl.play();
-      }
+      videoEl.srcObject = stream;
+      await videoEl.play();
 
-      // Start scan loop (stub)
-      startScanLoop();
+      // update hybrid fit after metadata loads
+      videoEl.onloadedmetadata = () => {
+        updateFitMode();
+      };
 
+      // recalc when layout changes
+      const ro = new ResizeObserver(() => updateFitMode());
+      ro.observe(containerEl);
+
+      scanLoop();
     } catch (err) {
       console.error("Camera error:", err);
-      dispatch("qrResult", "invalid");  // fallback system message
     }
   });
 
-  // ------------------------------------------------------------
-  // CAMERA STOP
-  // ------------------------------------------------------------
   onDestroy(() => {
-    scanning = false;
-
+    if (rafId) cancelAnimationFrame(rafId);
     if (stream) {
-      stream.getTracks().forEach(track => track.stop());
+      for (const t of stream.getTracks()) t.stop();
+      stream = null;
     }
   });
+
+  function scanLoop() {
+    rafId = requestAnimationFrame(scanLoop);
+    if (!videoEl) return;
+
+    const txt = decodeFrame(videoEl);
+    if (!txt) return;
+
+    const now = performance.now();
+    if (txt === lastPayload && now - lastTime < 2000) return;
+
+    lastPayload = txt;
+    lastTime = now;
+
+    dispatch("qrResult", txt);
+  }
 </script>
 
 <style>
-  /* IMPORTANT:
-     This must match the geometry of .layer-map,
-     not fullscreen.
-  */
-
-  .camera-frame {
+  .camera-container {
+    position: relative;
     width: 100%;
     height: 100%;
-    background: black;
     overflow: hidden;
+    background: #000;
   }
 
   video {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    display: block;
+    background: #000;
   }
 </style>
 
-<div class="camera-frame">
-  <video bind:this={videoEl} autoplay playsinline></video>
+<div class="camera-container" bind:this={containerEl}>
+  <video
+    bind:this={videoEl}
+    playsinline
+    autoplay
+    style="
+      object-fit: {objectFit};
+      object-position: {objectPosition};
+    "
+  ></video>
 </div>
