@@ -1,25 +1,19 @@
 import adapter from "@sveltejs/adapter-static";
-import { base } from "./src/lib/base-path.js";
 
-const config = {
+const dev = process.env.NODE_ENV === "development";
+
+export default {
   kit: {
     adapter: adapter({
-      fallback: "index.html"  // Required for GitHub Pages preview
+      fallback: 'index.html'
     }),
 
     paths: {
-      base
+      base: dev ? "" : "/FYTRUP-Future-You-TRU-Pack"
     },
 
     prerender: {
-      entries: [],            // Disable auto-prerender (prevents dynamic errors)
       handleHttpError: "warn"
-    },
-
-    serviceWorker: {
-      register: false
     }
   }
 };
-
-export default config;
