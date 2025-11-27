@@ -3,7 +3,7 @@ name: Deploy FYTRUP Alpha12 to GitHub Pages
 on:
   push:
     branches:
-      - alpha12
+      - main
   workflow_dispatch:
 
 permissions:
