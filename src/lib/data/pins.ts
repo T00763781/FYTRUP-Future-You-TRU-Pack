@@ -1,0 +1,22 @@
+export const PINS = [
+  { id: "wolfie",  icon: "/pins/wolfie.png" },
+  { id: "voxel",   icon: "/pins/voxel.png" },
+  { id: "torque",  icon: "/pins/torque.png" },
+  { id: "summit",  icon: "/pins/summit.png" },
+  { id: "stacks",  icon: "/pins/stacks.png" },
+  { id: "scope",   icon: "/pins/scope.png" },
+  { id: "rally",   icon: "/pins/rally.png" },
+  { id: "pulse",   icon: "/pins/pulse.png" },
+  { id: "pixel",   icon: "/pins/pixel.png" },
+  { id: "nimbus",  icon: "/pins/nimbus.png" },
+  { id: "ledger",  icon: "/pins/ledger.png" },
+  { id: "goggle",  icon: "/pins/goggle.png" },
+  { id: "flex",    icon: "/pins/flex.png" },
+  { id: "ember",   icon: "/pins/ember.png" },
+  { id: "echo",    icon: "/pins/echo.png" },
+  { id: "clip",    icon: "/pins/clip.png" },
+  { id: "chalk",   icon: "/pins/chalk.png" },
+  { id: "byte",    icon: "/pins/byte.png" },
+  { id: "brief",   icon: "/pins/brief.png" },
+  { id: "atlas",   icon: "/pins/atlas.png" }
+];

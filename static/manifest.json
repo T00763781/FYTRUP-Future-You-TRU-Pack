@@ -1,9 +1,9 @@
 {
   "name": "Find Your TRU Path",
   "short_name": "FYTRUP",
-  "id": "fytrup-alpha10",
-  "start_url": "/FYTRUP-alpha10/",
-  "scope": "/FYTRUP-alpha10/",
+  "id": "fytrup",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#004c63",
@@ -11,25 +11,25 @@
   "description": "Explore TRU campus through an interactive, map-driven experience with Wolfie and the Pack.",
   "icons": [
     {
-      "src": "/FYTRUP-alpha10/icons/icon-192.png",
+      "src": "/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/FYTRUP-alpha10/icons/icon-512.png",
+      "src": "/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/FYTRUP-alpha10/icons/maskable-192.png",
+      "src": "/icons/maskable-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/FYTRUP-alpha10/icons/maskable-512.png",
+      "src": "/icons/maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

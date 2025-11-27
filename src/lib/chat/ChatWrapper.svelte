@@ -1,210 +1,87 @@
 <!-- ------------------------------------------------------------
-     CHATWRAPPER.SVELTE — FYTRUP Alpha10 (Keyboard-Aware Final, QR Patched)
+     CHATWRAPPER.SVELTE — FYTRUP Alpha12 (FooterTray Architecture)
 ------------------------------------------------------------- -->
 
 <script>
-  import {
-    onMount,
-    onDestroy,
-    afterUpdate,
-    createEventDispatcher
-  } from "svelte";
-
+  import { createEventDispatcher, onDestroy } from "svelte";
   import ChatShell from "./ChatShell.svelte";
-  import ChatInput from "./ChatInput.svelte";
-  import { appState } from "$lib/state/appState.js";
+  import { chatState } from "$lib/state/chatState.js";
 
-  /* --------------------------------------------
-     GLOBAL STATE
-  -------------------------------------------- */
-  let state;
-  const unsubscribe = appState.subscribe((v) => (state = v));
-
-  /* --------------------------------------------
-     DISPATCH UPSTREAM → +layout.svelte
-  -------------------------------------------- */
   const dispatch = createEventDispatcher();
 
-  // camera toggle from ChatInput → upward to layout
-  function forwardToggleCamera() {
-    dispatch("toggleCamera");
+  export let sheetPos = 0.85;  // 0 = full, 0.55 = half, 0.85 = peek
+  export let showCamera = false;
+
+  // Allowed snap values
+  const SNAP = [0, 0.55, 0.85];
+
+  let messages = [];
+  const unsub = chatState.subscribe(v => (messages = v));
+
+  // ------------------------------------------------------------
+  // Fix: Clamp incoming sheetPos to prevent drawer covering tray
+  // ------------------------------------------------------------
+  $: {
+    if (sheetPos < 0.02) sheetPos = 0.02;  // prevents full overlap
+    if (sheetPos > 0.92) sheetPos = 0.92;  // prevents drawer drifting
   }
 
-  // QR result from CameraView → upward to layout
-  function forwardQR(e) {
-    dispatch("qrResult", e.detail);
+  function cycleSheet() {
+    let i = SNAP.findIndex(v => Math.abs(v - sheetPos) < 0.05);
+    if (i === -1) i = 0;
+
+    let next = SNAP[(i + 1) % SNAP.length];
+
+    // clamp outgoing value too
+    if (next < 0.02) next = 0.02;
+
+    sheetPos = next;
+    dispatch("sheetChange", sheetPos);
   }
 
-  /* --------------------------------------------
-     DOM REFS
-  -------------------------------------------- */
-  let wrapperEl;   // root .chat-wrapper
-  let scrollEl;    // .chat-scroll
-
-  /* --------------------------------------------
-     KEYBOARD OFFSET (via visualViewport)
-  -------------------------------------------- */
-  let keyboardOffset = 0;
-
-  /* --------------------------------------------
-     AUTO-SCROLL when messages update
-  -------------------------------------------- */
-  let lastMessageCount = 0;
-
-  afterUpdate(() => {
-    if (!scrollEl) return;
-
-    if (state.messages?.length !== lastMessageCount) {
-      lastMessageCount = state.messages.length;
-
-      requestAnimationFrame(() => {
-        scrollEl.scrollTop = scrollEl.scrollHeight;
-      });
-    }
-  });
-
-  /* --------------------------------------------
-     KEYBOARD HEIGHT HANDLING (mobile)
-  -------------------------------------------- */
-  function updateKeyboardOffset() {
-    const vv = window.visualViewport;
-    if (!vv) {
-      keyboardOffset = 0;
-      wrapperEl?.style.setProperty("--kb-offset", "0px");
-      return;
-    }
-
-    const bottomInset = window.innerHeight - (vv.height + vv.offsetTop);
-
-    keyboardOffset = bottomInset > 80 ? bottomInset : 0;
-
-    wrapperEl?.style.setProperty("--kb-offset", keyboardOffset + "px");
-
-    requestAnimationFrame(() => {
-      if (scrollEl) scrollEl.scrollTop = scrollEl.scrollHeight;
-    });
-  }
-
-  onMount(() => {
-    if (typeof window !== "undefined" && window.visualViewport) {
-      window.visualViewport.addEventListener("resize", updateKeyboardOffset);
-      window.visualViewport.addEventListener("scroll", updateKeyboardOffset);
-      updateKeyboardOffset();
-    }
-
-    setTimeout(() => {
-      if (scrollEl) scrollEl.scrollTop = scrollEl.scrollHeight;
-    }, 50);
-  });
-
-  onDestroy(() => {
-    unsubscribe();
-    if (typeof window !== "undefined" && window.visualViewport) {
-      window.visualViewport.removeEventListener("resize", updateKeyboardOffset);
-      window.visualViewport.removeEventListener("scroll", updateKeyboardOffset);
-    }
-  });
-
-  /* --------------------------------------------
-     SEND ACTION (appState mutation allowed)
-  -------------------------------------------- */
-  function handleSend(msg) {
-    appState.update((s) => {
-      s.messages = [...s.messages, { role: "user", text: msg }];
-      return s;
-    });
-  }
+  onDestroy(unsub);
 </script>
 
 <style>
-  /* ------------------------------------------------------------
-       WRAPPER ROOT — keyboard offset via CSS var
-  ------------------------------------------------------------- */
-  .chat-wrapper {
+  .sheet {
     position: relative;
     width: 100%;
     height: 100%;
-
-    --kb-offset: 0px;
-
     display: flex;
     flex-direction: column;
     overflow: hidden;
+
+    background: var(--bg);
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
   }
 
-  /* ------------------------------------------------------------
-       SCROLLABLE CHAT LIST
-  ------------------------------------------------------------- */
-  .chat-scroll {
-    flex: 1;
+  .handle {
+    width: 54px;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255,255,255,0.45);
+
+    margin: 10px auto 14px auto;
+    cursor: pointer;
+  }
+
+  .messages {
+    flex: 1 1 auto;
     overflow-y: auto;
+    padding-bottom: 1rem;
     scrollbar-width: none;
-
-    padding: 1rem 0.75rem calc(6rem + env(safe-area-inset-bottom) + var(--kb-offset));
   }
-  .chat-scroll::-webkit-scrollbar {
+
+  .messages::-webkit-scrollbar {
     display: none;
-  }
-
-  .column {
-    width: 100%;
-    max-width: 40rem;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 0.9rem;
-  }
-
-  @media (max-width: 420px) {
-    .chat-scroll {
-      padding: 0.85rem 0.75rem calc(6.5rem + env(safe-area-inset-bottom) + var(--kb-offset));
-    }
-    .column {
-      gap: 0.75rem;
-    }
-  }
-
-  /* ------------------------------------------------------------
-       FLOATING INPUT BAR
-  ------------------------------------------------------------- */
-  .input-bar {
-    position: absolute;
-    bottom: var(--kb-offset);
-    width: 100%;
-    display: flex;
-    justify-content: center;
-
-    padding-bottom: calc(env(safe-area-inset-bottom) + 0.5rem);
-  }
-
-  .input-inner {
-    width: 100%;
-    max-width: 40rem;
-    padding: 0 0.75rem;
   }
 </style>
 
-<div class="chat-wrapper" bind:this={wrapperEl}>
+<div class="sheet">
+  <div class="handle" on:click={cycleSheet}></div>
 
-  <!-- passive listener to capture bubbled CameraView events -->
-  <div on:qrResult={forwardQR} style="display:none"></div>
-
-  <!-- SCROLL AREA -->
-  <div class="chat-scroll" bind:this={scrollEl}>
-    <div class="column">
-      <ChatShell messages={state.messages} />
-    </div>
+  <div class="messages">
+    <ChatShell {messages} />
   </div>
-
-  <!-- INPUT BAR -->
-  <div class="input-bar">
-    <div class="input-inner">
-      <ChatInput
-        showCamera={state.showCamera}
-        on:send={(e) => handleSend(e.detail)}
-        on:toggleCamera={forwardToggleCamera}
-      />
-    </div>
-  </div>
-
 </div>

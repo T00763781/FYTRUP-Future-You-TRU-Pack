@@ -1,8 +1,8 @@
 <!-- ------------------------------------------------------------
-     MAPVIEW.SVELTE — FYTRUP Alpha10 (Persistent Map + Store Invalidate)
-     • Survives camera toggle 100% reliably
-     • Calls map.invalidateSize() when showCamera → false
-     • Still uses GH-Pages-safe asset paths via $app/paths
+     MAPVIEW.SVELTE — FYTRUP Alpha12
+     • Persistent Leaflet map with camera toggle safety
+     • Invalidates size after camera closes (critical)
+     • Recenter button moved to top-right (icon only)
 ------------------------------------------------------------- -->
 
 <script>
@@ -19,19 +19,14 @@
   let initPOIMarkers;
   let watchUserLocation;
 
-  // teardown
   let cleanup = () => {};
 
-  // store subscription
+  // Store subscription
   let state = {};
   const unsub = appState.subscribe((v) => {
     state = v;
 
-    // ------------------------------------------------------------
-    // THE FIX:
-    // When camera turns OFF (showCamera = false), map becomes visible.
-    // Leaflet must be invalidated after a frame.
-    // ------------------------------------------------------------
+    // When camera closes, force Leaflet to recalc size
     if (map && v.showCamera === false) {
       requestAnimationFrame(() => map.invalidateSize(true));
     }
@@ -46,11 +41,11 @@
     initPOIMarkers = poi.initPOIMarkers;
     watchUserLocation = loc.watchUserLocation;
 
-    // init map
+    // Initialize Leaflet map
     map = await initMapCore(mapContainer);
     initPOIMarkers(map);
 
-    // location watcher
+    // User location + recenter button integration
     try {
       const result = watchUserLocation(
         map,
@@ -63,7 +58,7 @@
       cleanup = () => {};
     }
 
-    // safety: ensure first paint is correct
+    // Safety invalidate (first paint)
     setTimeout(() => map.invalidateSize(true), 150);
   });
 
@@ -106,42 +101,51 @@
     z-index: 30 !important;
   }
 
+  /* ----------------------------------------------
+     ICON-ONLY TOP-RIGHT RECENTER BUTTON
+  ---------------------------------------------- */
   .recenter-btn {
     position: absolute;
-    right: 12px;
-    bottom: 12px;
 
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
+    top: calc(12px + env(safe-area-inset-top));
+    right: 12px;
+
+    width: 42px;
+    height: 42px;
 
     display: flex;
     justify-content: center;
     align-items: center;
 
-    background: rgba(0, 0, 0, 0.42);
-    backdrop-filter: blur(7px);
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
 
     cursor: pointer;
     z-index: 40;
 
-    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-    transition: transform .15s ease;
+    transition: transform 0.15s ease;
   }
 
   .recenter-btn:active {
-    transform: scale(0.92);
+    transform: scale(0.85);
   }
 
   .recenter-btn img {
-    width: 20px;
-    height: 20px;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
     opacity: 0.95;
+
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.35));
   }
 </style>
 
+<!-- Map container -->
 <div class="map-shell" bind:this={mapContainer}></div>
 
+<!-- Floating recenter button -->
 <div class="recenter-btn" bind:this={recenterButton}>
   <img src={`${base}/icons/Recenter.png`} alt="recenter" />
 </div>

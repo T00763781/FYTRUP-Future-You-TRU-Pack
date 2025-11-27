@@ -1,16 +1,22 @@
 import adapter from "@sveltejs/adapter-static";
 
-const dev = process.env.NODE_ENV === "development";
-
 export default {
   kit: {
     adapter: adapter(),
+
+    // No base path — Alpha12 runs clean in dev and can be configured later for production.
     paths: {
-      base: dev ? "" : "/FYTRUP-alpha10"
+      base: ""
     },
+
     prerender: {
       entries: ["*"],
       handleHttpError: "warn"
+    },
+
+    // Disable service worker auto-registration behavior.
+    serviceWorker: {
+      register: false
     }
   }
 };

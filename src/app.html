@@ -5,7 +5,7 @@
 
     <link rel="icon" href="%sveltekit.assets%/favicon.png" />
 
-    <!-- PWA Manifest (MUST be relative for SvelteKit prerender/GitHub Pages) -->
+    <!-- PWA Manifest (relative for SvelteKit prerender/GitHub Pages) -->
     <link rel="manifest" href="%sveltekit.assets%/manifest.json">
 
     <!-- iOS Icons -->
@@ -40,9 +40,14 @@
         history.scrollRestoration = "manual";
       }
 
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("%sveltekit.assets%/service-worker.js");
-      }
+      /**
+       * FYTRUP Alpha12:
+       * Service worker deliberately DISABLED to prevent hydration failures.
+       * Do not re-enable until Alpha12 PWA phase.
+       */
+      // if ("serviceWorker" in navigator) {
+      //   navigator.serviceWorker.register("%sveltekit.assets%/service-worker.js");
+      // }
     </script>
 
     <div style="display: contents">

@@ -1,10 +1,3 @@
-<!-- ------------------------------------------------------------
-     +PAGE.SVELTE
-     Purpose: Empty handoff to +layout.svelte
-------------------------------------------------------------- -->
-
-<script>
-  // Nothing needed here
-</script>
+<!-- Empty page — root content is fully controlled by +layout.svelte -->
 
 <div></div>

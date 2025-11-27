@@ -1,12 +1,10 @@
 <!-- ------------------------------------------------------------
-     CHATSHELL.SVELTE — FYTRUP Alpha10 (REM-scaled + Autoscale)
+     CHATSHELL.SVELTE — FYTRUP Alpha12 (FooterTray Safe)
      PURPOSE:
        • Render persona messages
-       • Apply REM-friendly spacing
-       • Auto-scroll to last message
-       • Persona avatars + names
-       • GitHub Pages safe (uses `${base}`)
-       • System message banner support (QR prep)
+       • Auto-scroll to bottom
+       • Keep bubbles clear of FooterTray
+       • Prevent horizontal scroll entirely
 ------------------------------------------------------------- -->
 
 <script>
@@ -16,14 +14,12 @@
 
   export let messages = [];
 
-  let container; // outer scroll region
+  let container;
 
-  /* ------------------------------------------------------------
-     Persona Registry (GitHub Pages safe)
-  ------------------------------------------------------------- */
+  /* Persona registry (GitHub Pages safe) */
   const personas = {
     wolfie: {
-      avatar: `${base}/characters/wolfie-icon-neutral.png`,
+      avatar: `${base}/characters/Wolfie.png`,
       name: "Wolfie"
     },
     atlas: {
@@ -40,9 +36,7 @@
     }
   };
 
-  /* ------------------------------------------------------------
-     AUTO-SCROLL
-  ------------------------------------------------------------- */
+  /* Auto-scroll */
   function scrollToBottom() {
     if (!container) return;
     container.scrollTop = container.scrollHeight;
@@ -52,9 +46,6 @@
   afterUpdate(scrollToBottom);
 </script>
 
-<!-- ------------------------------------------------------------
-     RENDER
-------------------------------------------------------------- -->
 <div class="chat-shell" bind:this={container}>
   {#each messages as m}
     <Message
@@ -67,25 +58,19 @@
 </div>
 
 <style>
-  :global(body) {
-    font-family: system-ui, sans-serif;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  /* ------------------------------------------------------------
-       CHAT SHELL — REM scaling
-  ------------------------------------------------------------- */
+  /* Outer scroll container */
   .chat-shell {
     width: 100%;
     max-width: 38rem;
     margin: 0 auto;
 
-    padding: 1rem;
+    padding: 1rem 1rem 1.5rem 1rem; /* bottom padding protects from tray */
     display: flex;
     flex-direction: column;
-    gap: 0.85rem; /* slightly tighter so system banners don't create excess space */
+    gap: 0.85rem;
 
     overflow-y: auto;
+    overflow-x: hidden;    /* hard-disable horizontal scrolling */
     scrollbar-width: none;
     overscroll-behavior: contain;
   }
@@ -96,7 +81,7 @@
 
   @media (max-width: 420px) {
     .chat-shell {
-      padding: 0.85rem;
+      padding: 0.85rem 0.85rem 1.25rem 0.85rem;
       gap: 0.8rem;
     }
   }

@@ -1,58 +1,59 @@
 <!-- ------------------------------------------------------------
-     CHATINPUT.SVELTE — FYTRUP Alpha10 (Two-Way Camera Toggle)
-     Purpose:
-       • Camera + send input bar
-       • Emits toggleCamera → ChatWrapper handles state change
-       • Icon reflects global showCamera state (passed via prop)
-       • Moves cleanly above keyboard via --kb-offset
-       • GH Pages safe (uses `${base}`)
+   CHATINPUT.SVELTE — Alpha12 (Global fixed input bar)
+   • Always visible, outside chat drawer
+   • Send + Camera toggle
+   • GitHub pages safe via `base`
 ------------------------------------------------------------- -->
 
 <script>
   import { createEventDispatcher } from "svelte";
   import { base } from "$app/paths";
 
-  export let showCamera = false;   // visual reflection of global state
+  export let showCamera = false;
 
   const dispatch = createEventDispatcher();
   let message = "";
 
   function handleSend() {
-    if (message.trim().length === 0) return;
+    if (!message.trim()) return;
     dispatch("send", message.trim());
     message = "";
   }
 
-  // Emit toggle upward — ChatWrapper mutates appState
   function toggleCamera() {
     dispatch("toggleCamera");
   }
 </script>
 
 <style>
-  /* ------------------------------------------------------------
-     INPUT CONTAINER
-     ChatWrapper positions this and handles keyboard offset.
-  ------------------------------------------------------------- */
-  .input-wrap {
-    width: 100%;
-    pointer-events: none;
+  /* Fixed wrapper */
+  .input-bar-wrap {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    z-index: 50;
+
+    padding: 10px 0 calc(env(safe-area-inset-bottom) + 6px) 0;
+
     display: flex;
     justify-content: center;
+
+    background: transparent; /* no bar, only floating input */
   }
 
   .input-bar {
     width: 92%;
     max-width: 38rem;
-    pointer-events: all;
 
     background: var(--input-bg);
     border: 1px solid var(--input-border);
+    border-radius: 1.75rem;
 
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
 
-    border-radius: 1.75rem;
     padding: 0.6rem 0.75rem;
 
     display: flex;
@@ -60,17 +61,13 @@
     gap: 0.65rem;
   }
 
-  /* ------------------------------------------------------------
-     BUTTONS
-  ------------------------------------------------------------- */
   button {
     background: none;
     border: none;
-    padding: 0;
-    cursor: pointer;
-
     width: 2rem;
     height: 2rem;
+    padding: 0;
+    cursor: pointer;
     flex-shrink: 0;
   }
 
@@ -80,9 +77,6 @@
     object-fit: contain;
   }
 
-  /* ------------------------------------------------------------
-     TEXT INPUT — REM-scaled
-  ------------------------------------------------------------- */
   input {
     flex: 1;
     background: transparent;
@@ -91,7 +85,6 @@
 
     font-size: 1rem;
     color: var(--text);
-
     padding: 0.15rem 0;
   }
 
@@ -100,16 +93,15 @@
       width: 94%;
       padding: 0.75rem 0.9rem;
     }
-
     input {
       font-size: 1.05rem;
     }
   }
 </style>
 
-<div class="input-wrap">
+<div class="input-bar-wrap">
   <div class="input-bar">
-
+    
     <!-- Camera toggle -->
     <button on:click={toggleCamera}>
       <img
@@ -118,11 +110,11 @@
       />
     </button>
 
-    <!-- Text field -->
+    <!-- Text entry -->
     <input
       bind:value={message}
       placeholder="Chat with the Pack…"
-      on:keydown={(e) => e.key === 'Enter' && handleSend()}
+      on:keydown={(e) => e.key === "Enter" && handleSend()}
     />
 
     <!-- Send -->

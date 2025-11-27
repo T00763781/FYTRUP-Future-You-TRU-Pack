@@ -1,21 +1,20 @@
 // ------------------------------------------------------------
-// appState.js — FYTRUP Alpha10 Global Shell State
+// appState.js — FYTRUP Alpha12 Global Shell State
 // Central store for:
 //   • Map / Camera mode
 //   • Chat messages
-//   • System message injection for QR scanner
-//   • Future persona context
-//   • Future POI triggers + Worker responses
-//   • UI flags (keyboard, sheets, overlays)
+//   • QR system message routing
+//   • Contact profile overlay (NEW)
+//   • UI flags (sheets, keyboard, overlays)
 // ------------------------------------------------------------
 
 import { writable } from "svelte/store";
 
 export const appState = writable({
   // ------------------------------------------------------------
-  // MODE LAYER (Map <-> Camera)
+  // CAMERA / MAP MODE
   // ------------------------------------------------------------
-  showCamera: false, // true = CameraView, false = MapView
+  showCamera: false,
 
   // ------------------------------------------------------------
   // CHAT MESSAGES
@@ -33,12 +32,18 @@ export const appState = writable({
   ],
 
   // ------------------------------------------------------------
-  // PERSONA STATE (Future use)
+  // PERSONA STATE (Future: Packmates in Pack Chat)
   // ------------------------------------------------------------
   activePersona: "wolfie",
 
   // ------------------------------------------------------------
-  // UI FLAGS (Future)
+  // CONTACT OVERLAY (NEW)
+  // If not null → ContactHeroOverlay is shown
+  // ------------------------------------------------------------
+  activeContact: null,
+
+  // ------------------------------------------------------------
+  // UI FLAGS
   // ------------------------------------------------------------
   keyboardOpen: false,
   bottomSheetOpen: false,
@@ -46,19 +51,19 @@ export const appState = writable({
 });
 
 // ------------------------------------------------------------
-// SYSTEM MESSAGE HELPERS (QR-ready)
+// QR SYSTEM MESSAGE HELPERS
 // ------------------------------------------------------------
 
 export function systemMessage(text) {
-  appState.update((s) => {
-    s.messages = [...s.messages, { role: "system", text }];
-    return s;
-  });
+  appState.update((s) => ({
+    ...s,
+    messages: [...s.messages, { role: "system", text }]
+  }));
 }
 
 // ------------------------------------------------------------
 // NOTE-EVENT ROUTER
-// Called by: layout → handleQR(e.detail)
+// Called by layout → handleQR(e.detail)
 // ------------------------------------------------------------
 
 export function noteEvent(type) {
@@ -79,4 +84,22 @@ export function noteEvent(type) {
       systemMessage("Unknown scanner response.");
       break;
   }
+}
+
+// ------------------------------------------------------------
+// CONTACT OVERLAY HELPERS (NEW)
+// ------------------------------------------------------------
+
+export function openContact(mate) {
+  appState.update((s) => ({
+    ...s,
+    activeContact: mate
+  }));
+}
+
+export function closeContact() {
+  appState.update((s) => ({
+    ...s,
+    activeContact: null
+  }));
 }

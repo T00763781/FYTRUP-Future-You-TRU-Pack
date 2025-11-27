@@ -1,10 +1,16 @@
 /* ------------------------------------------------------------
-   STORE.JS — FYTRUP Alpha10 Theme Engine
+   STORE.JS — FYTRUP Alpha10 Theme Engine (Patched for TRU Brand Themes)
 ------------------------------------------------------------- */
 
 import { writable } from "svelte/store";
 
-const themes = ["tru", "night", "sunset"];
+/* Updated theme list — must match themes.css exactly */
+const themes = [
+  "tru",         // default TRU Teal (alias block in CSS)
+  "tru-yellow",
+  "orange",
+  "ol-green"
+];
 
 export const theme = writable("tru");
 
@@ -31,7 +37,7 @@ export function initTheme() {
   });
 }
 
-/* Cycle through themes */
+/* Cycle through themes in order */
 export function cycleTheme() {
   theme.update((current) => {
     const idx = themes.indexOf(current);

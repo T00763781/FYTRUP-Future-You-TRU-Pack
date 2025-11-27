@@ -1,20 +1,24 @@
 /* ------------------------------------------------------------
-   THEMES.CSS — FYTRUP Alpha10 Global Theme Variables
-   RFS-READY VERSION (safe for dynamic <html> font-size)
+   THEMES.CSS — FYTRUP Alpha10  (TRU Brand-Compliant Themes)
+   RFS-SAFE — Compatible with dynamic HTML root REM scaling
 ------------------------------------------------------------- */
 
-/* ========== TRU DEFAULT THEME ============================== */
-:root[data-theme="tru"] {
-  --bg: #004c63;
-  --text: #e6f7ff;
+/* ========= TRU / TRU TEAL (DEFAULT) ======================== */
+/* Aliases: no data-theme, "tru", or "tru-teal" → same palette */
+:root,
+:root[data-theme="tru"],
+:root[data-theme="tru-teal"] {
+  /* Primary brand colour: #00b0b9 */
+  --bg: #00363a;           /* deepened teal for contrast */
+  --text: #e9fdff;
 
-  --header-bg: rgba(0, 40, 60, 0.6);
+  --header-bg: rgba(0, 176, 185, 0.22);
   --header-text: #ffffff;
 
-  --accent-teal: #21d4c2;
-  --accent-yellow: #fbd34d;
-  --accent-green: #58d68d;
-  --accent-orange: #ff8c42;
+  --accent-teal: #00b0b9;   /* TRU Teal */
+  --accent-yellow: #ffcd00; /* TRU Yellow */
+  --accent-orange: #f88f23; /* Orange */
+  --accent-green: #00b18f;  /* OL Green */
 
   /* Bubble surfaces (chat) */
   --bubble-bg: rgba(255, 255, 255, 0.16);
@@ -22,65 +26,84 @@
   --bubble-system-bg: rgba(255, 255, 255, 0.18);
 
   /* Input surfaces */
-  --input-bg: rgba(255, 255, 255, 0.18);
+  --input-bg: rgba(255, 255, 255, 0.20);
   --input-border: rgba(255, 255, 255, 0.32);
 }
 
-/* ========== NIGHT THEME ===================================== */
-:root[data-theme="night"] {
-  --bg: #0b0f16;
-  --text: #d5e1f0;
+/* ========= TRU YELLOW THEME (ACCENT-LED) =================== */
+/* You can map this to data-theme="yellow" later if you want */
+:root[data-theme="tru-yellow"] {
+  --bg: #1c1a00;           /* deep warm slate */
+  --text: #fff5cc;
 
-  --header-bg: rgba(20, 20, 30, 0.75);
+  --header-bg: rgba(255, 205, 0, 0.22);
   --header-text: #ffffff;
 
-  --accent-teal: #20c1b0;
-  --accent-yellow: #e6bf3e;
-  --accent-green: #4ec28b;
-  --accent-orange: #ff7841;
+  --accent-teal: #00b0b9;
+  --accent-yellow: #ffcd00;
+  --accent-orange: #f88f23;
+  --accent-green: #00b18f;
 
-  --bubble-bg: rgba(255, 255, 255, 0.15);
-  --bubble-user-bg: rgba(255, 255, 255, 0.25);
-  --bubble-system-bg: rgba(255, 255, 255, 0.20);
+  --bubble-bg: rgba(255, 255, 255, 0.14);
+  --bubble-user-bg: rgba(255, 255, 255, 0.22);
+  --bubble-system-bg: rgba(255, 255, 255, 0.16);
 
-  --input-bg: rgba(255, 255, 255, 0.18);
-  --input-border: rgba(255, 255, 255, 0.28);
+  --input-bg: rgba(255, 255, 255, 0.22);
+  --input-border: rgba(255, 255, 255, 0.30);
 }
 
-/* ========== SUNSET THEME ==================================== */
-:root[data-theme="sunset"] {
-  --bg: linear-gradient(180deg, #ff9966, #ff5e62);
-  --text: #ffffff;
+/* ========= ORANGE THEME ==================================== */
+:root[data-theme="orange"] {
+  --bg: #2b1400;           /* dark warm base */
+  --text: #ffe6d1;
 
-  --header-bg: rgba(255, 255, 255, 0.18);
+  --header-bg: rgba(248, 143, 35, 0.22); /* #f88f23 */
   --header-text: #ffffff;
 
-  --accent-teal: #ffffff;
-  --accent-yellow: #ffe28c;
-  --accent-green: #ffeaa7;
-  --accent-orange: #ffcc99;
+  --accent-teal: #00b0b9;
+  --accent-yellow: #ffcd00;
+  --accent-orange: #f88f23;
+  --accent-green: #00b18f;
 
-  --bubble-bg: rgba(255, 255, 255, 0.18);
-  --bubble-user-bg: rgba(255, 255, 255, 0.25);
-  --bubble-system-bg: rgba(255, 255, 255, 0.22);
+  --bubble-bg: rgba(255, 255, 255, 0.15);
+  --bubble-user-bg: rgba(255, 255, 255, 0.24);
+  --bubble-system-bg: rgba(255, 255, 255, 0.18);
 
   --input-bg: rgba(255, 255, 255, 0.22);
   --input-border: rgba(255, 255, 255, 0.32);
 }
 
-/* ========== GLOBAL RESET + RFS-COMPATIBILITY ================ */
+/* ========= OL GREEN THEME ================================== */
+:root[data-theme="ol-green"] {
+  --bg: #002d28;           /* deepened OL Green base */
+  --text: #dbfff6;
 
-html, body {
+  --header-bg: rgba(0, 177, 143, 0.22); /* #00b18f */
+  --header-text: #ffffff;
+
+  --accent-teal: #00b0b9;
+  --accent-yellow: #ffcd00;
+  --accent-orange: #f88f23;
+  --accent-green: #00b18f;
+
+  --bubble-bg: rgba(255, 255, 255, 0.15);
+  --bubble-user-bg: rgba(255, 255, 255, 0.26);
+  --bubble-system-bg: rgba(255, 255, 255, 0.18);
+
+  --input-bg: rgba(255, 255, 255, 0.20);
+  --input-border: rgba(255, 255, 255, 0.32);
+}
+
+/* ========= GLOBAL BASE ===================================== */
+
+html,
+body {
   background: var(--bg);
   color: var(--text);
   margin: 0;
   padding: 0;
   height: 100%;
-
-  /* Prevent chat zoom/pinch */
   -webkit-text-size-adjust: 100%;
   touch-action: pan-y;
-
-  /* Allow +layout.svelte to dynamically scale root REM */
   font-family: system-ui, sans-serif;
 }
