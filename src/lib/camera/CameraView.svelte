@@ -1,5 +1,6 @@
 <script>
   import { onMount, onDestroy, createEventDispatcher } from "svelte";
+  import { browser } from "$app/environment";
   import { decodeFrame } from "$lib/qr/decoder.js";
 
   const dispatch = createEventDispatcher();
@@ -9,17 +10,16 @@
 
   let stream = null;
   let rafId = null;
+  let resizeObs = null;
 
   // intelligent object-fit state
-  let objectFit = "contain";   // dynamically updated
+  let objectFit = "contain";
   let objectPosition = "center center";
 
   // scanning guard
   let lastPayload = null;
   let lastTime = 0;
 
-  // Hybrid mode engine:
-  // Compare camera AR vs container AR and pick best-fit strategy
   function updateFitMode() {
     if (!videoEl || !containerEl) return;
 
@@ -34,17 +34,16 @@
     const videoAR = vw / vh;
     const containerAR = cw / ch;
 
-    // Intelligent hybrid rules:
-    // 1. If video is WIDER than the container → contain (avoid vertical crop)
-    // 2. If video is TALLER than container → cover (avoid letterboxing)
     if (videoAR > containerAR) {
-      objectFit = "contain";   // preserve full frame horizontally
+      objectFit = "contain";
     } else {
-      objectFit = "cover";     // maintain full-bleed experience vertically
+      objectFit = "cover";
     }
   }
 
   onMount(async () => {
+    if (!browser) return;
+
     try {
       stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "environment" }
@@ -53,14 +52,10 @@
       videoEl.srcObject = stream;
       await videoEl.play();
 
-      // update hybrid fit after metadata loads
-      videoEl.onloadedmetadata = () => {
-        updateFitMode();
-      };
+      videoEl.onloadedmetadata = () => updateFitMode();
 
-      // recalc when layout changes
-      const ro = new ResizeObserver(() => updateFitMode());
-      ro.observe(containerEl);
+      resizeObs = new ResizeObserver(() => updateFitMode());
+      resizeObs.observe(containerEl);
 
       scanLoop();
     } catch (err) {
@@ -70,6 +65,12 @@
 
   onDestroy(() => {
     if (rafId) cancelAnimationFrame(rafId);
+
+    if (resizeObs) {
+      resizeObs.disconnect();
+      resizeObs = null;
+    }
+
     if (stream) {
       for (const t of stream.getTracks()) t.stop();
       stream = null;

@@ -1,54 +1,49 @@
 ﻿// ------------------------------------------------------------
-// poiMarkers.js — FYTRUP Alpha10 POI Engine (GitHub-safe)
+// poiMarkers.js — FYTRUP Alpha12 (GitHub Pages–safe)
+// • Uses poi.ts + packmates.js
+// • Case-safe, base-safe, SSR-safe
 // ------------------------------------------------------------
-import { base } from "$app/paths";   // <-- CRITICAL for GitHub Pages
 
-// Marker icon selector with base path
-function iconForState(state) {
-  const iconMap = {
-    unseen: `${base}/icons/marker_unseen.png`,
-    visited: `${base}/icons/marker_visited.png`,
-    completed: `${base}/icons/marker_completed.png`
-  };
-  return iconMap[state] || iconMap.unseen;
-}
+import { base } from "$app/paths";
 
-// Persona avatar lookup (static URLs only, base-prefixed)
-const personaPic = {
-  wolfie: `${base}/characters/wolfie-icon-neutral.png`,
-  atlas:  `${base}/characters/atlas-icon-neutral.png`
+// MUST MATCH EXACT FILE NAMES (lowercase + correct extensions)
+import PACKMATES from "$lib/data/packmates.js";
+import { POIS } from "$lib/data/poi.ts";
+
+// ------------------------------------------------------------
+// MARKER ICONS
+// ------------------------------------------------------------
+const ICONS = {
+  unseen: `${base}/icons/marker_unseen.png`,
+  visited: `${base}/icons/marker_visited.png`,
+  completed: `${base}/icons/marker_completed.png`
 };
 
-// POI definitions
-const POIS = [
-  {
-    id: "welcome",
-    name: "Welcome Centre",
-    latlng: [50.67072620051081, -120.36469120484377],
-    persona: "wolfie"
-  },
-  {
-    id: "commons",
-    name: "Campus Commons",
-    latlng: [50.672409604835615, -120.36502546389116],
-    persona: "atlas"
-  },
-  {
-    id: "devoffice",
-    name: "Dev Test Office",
-    latlng: [50.65937358564882, -120.34439345950946],
-    persona: "wolfie"
-  }
-];
+function iconForState(state) {
+  return ICONS[state] || ICONS.unseen;
+}
 
-// persistent marker state
+// ------------------------------------------------------------
+// BUILD AVATAR LOOKUP FROM PACKMATES
+// ------------------------------------------------------------
+const avatarFor = Object.fromEntries(
+  PACKMATES.map((p) => [p.id, `${base}${p.avatar}`])
+);
+
+// ------------------------------------------------------------
+// LOCAL STORAGE STATE
+// ------------------------------------------------------------
 function getState(id) {
   return localStorage.getItem("poi-" + id) || "unseen";
 }
+
 function saveState(id, state) {
   localStorage.setItem("poi-" + id, state);
 }
 
+// ------------------------------------------------------------
+// MAIN INITIALIZER
+// ------------------------------------------------------------
 export async function initPOIMarkers(map) {
   const L = await import("leaflet");
 
@@ -62,15 +57,17 @@ export async function initPOIMarkers(map) {
       iconAnchor: [22, 44]
     });
 
-    const marker = L.marker(poi.latlng, { icon }).addTo(map);
+    const marker = L.marker([poi.lat, poi.lng], { icon }).addTo(map);
 
-    // Popup (persona avatar + title)
+    // Persona avatar from PACKMATES
+    const avatar = avatarFor[poi.packmateId];
+
     const popupHTML = `
       <div style="display:flex; gap:10px; align-items:center;">
-        <img src="${personaPic[poi.persona]}"
-             style="width:40px;height:40px;border-radius:50%;" />
+        <img src="${avatar}"
+             style="width:42px;height:42px;border-radius:50%;" />
         <div>
-          <strong>${poi.name}</strong><br/>
+          <strong>${poi.packmateId.toUpperCase()}</strong><br/>
           <span style="opacity:.8;font-size:14px;">Tap to explore</span>
         </div>
       </div>
@@ -78,9 +75,9 @@ export async function initPOIMarkers(map) {
 
     marker.bindPopup(popupHTML);
 
-    // State update on tap
+    // Update marker when tapped
     marker.on("click", () => {
-      if (state === "unseen") {
+      if (getState(poi.id) === "unseen") {
         saveState(poi.id, "visited");
 
         marker.setIcon(

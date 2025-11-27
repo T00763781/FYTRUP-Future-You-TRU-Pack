@@ -1,48 +1,53 @@
+// ------------------------------------------------------------
+// classifier.js — FYTRUP Alpha12
+// • Handles scanning of POI/packmate-specific note IDs
+// • Compatible with notes.ts object structure
+// • Accepts messy QR text and resolves to packmate-index IDs
+// ------------------------------------------------------------
+
 import { NOTES } from "./notes.js";
 import { hasNote, addNote } from "./storage.js";
 
 /**
- * Normalize scanned strings so all variants become canonical FYTRUP-###
+ * Convert raw QR strings into canonical IDs like:
+ *   "wolfie-1"
+ *   "voxel-2"
+ *   "echo-3"
  *
- * Examples:
- *   "note-001"      → "FYTRUP-001"
- *   "NOTE-001"      → "FYTRUP-001"
- *   "fytrup-001"    → "FYTRUP-001"
- *   " FYTRUP-001 "  → "FYTRUP-001"
+ * Accepts variants like:
+ *   "Wolfie1", "WOLFIE-01", " voxel_3 ", "summit02"
  */
 function normalize(raw) {
   if (!raw || typeof raw !== "string") return "";
 
   let v = raw.trim().toLowerCase();
 
-  // Convert note-### → fytrup-###
-  if (v.startsWith("note-")) {
-    const num = v.replace("note-", "").padStart(3, "0");
-    return `FYTRUP-${num.toUpperCase()}`;
-  }
+  // extract letters (packmate id)
+  let letters = v.replace(/[^a-z]/g, "");
+  // extract digits
+  let digits = v.replace(/[^0-9]/g, "");
 
-  // Convert fytrup-### (any casing/spaces/hyphens)
-  if (v.startsWith("fytrup")) {
-    // Extract digits
-    const digits = v.replace(/[^0-9]/g, "");
-    if (digits.length > 0) {
-      return `FYTRUP-${digits.padStart(3, "0")}`;
-    }
-  }
+  if (!letters || !digits) return "";
 
-  // Fallback: return raw trimmed uppercase
-  return raw.trim().toUpperCase();
+  // trim leading zeros (keep at least 1 digit)
+  const idx = String(parseInt(digits, 10));
+
+  return `${letters}-${idx}`;
 }
 
 export function classifyNote(raw) {
   const id = normalize(raw);
 
-  if (!id) return "invalid";
+  if (!id) return { status: "invalid", id: null };
 
-  if (!NOTES.includes(id)) return "unknown";
+  if (!NOTES[id]) {
+    return { status: "unknown", id };
+  }
 
-  if (hasNote(id)) return "duplicate";
+  if (hasNote(id)) {
+    return { status: "duplicate", id };
+  }
 
   addNote(id);
-  return "added";
+  return { status: "added", id };
 }

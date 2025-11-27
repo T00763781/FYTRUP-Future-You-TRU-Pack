@@ -16,14 +16,14 @@
 
   let container;
 
-  /* Persona registry (GitHub Pages safe) */
+  /* Persona registry — ONLY real files in /static/characters */
   const personas = {
     wolfie: {
       avatar: `${base}/characters/Wolfie.png`,
       name: "Wolfie"
     },
     atlas: {
-      avatar: `${base}/characters/atlas-icon-neutral.png`,
+      avatar: `${base}/characters/Atlas.png`,
       name: "Atlas"
     },
     system: {
@@ -35,6 +35,15 @@
       name: ""
     }
   };
+
+  /* Fallbacks for safety */
+  function resolveAvatar(role) {
+    return personas[role]?.avatar || `${base}/characters/Wolfie.png`;
+  }
+
+  function resolveName(role) {
+    return personas[role]?.name || "";
+  }
 
   /* Auto-scroll */
   function scrollToBottom() {
@@ -51,26 +60,25 @@
     <Message
       sender={m.role}
       text={m.text}
-      avatar={personas[m.role]?.avatar}
-      name={personas[m.role]?.name}
+      avatar={resolveAvatar(m.role)}
+      name={resolveName(m.role)}
     />
   {/each}
 </div>
 
 <style>
-  /* Outer scroll container */
   .chat-shell {
     width: 100%;
     max-width: 38rem;
     margin: 0 auto;
 
-    padding: 1rem 1rem 1.5rem 1rem; /* bottom padding protects from tray */
+    padding: 1rem 1rem 1.5rem 1rem;
     display: flex;
     flex-direction: column;
     gap: 0.85rem;
 
     overflow-y: auto;
-    overflow-x: hidden;    /* hard-disable horizontal scrolling */
+    overflow-x: hidden;
     scrollbar-width: none;
     overscroll-behavior: contain;
   }

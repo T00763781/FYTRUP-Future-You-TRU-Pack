@@ -1,10 +1,9 @@
 <!-- ------------------------------------------------------------
-     MODESWITCHER.SVELTE — FYTRUP Alpha10 (Final)
+     MODESWITCHER.SVELTE — FYTRUP Alpha12 (GH Pages Safe)
      Purpose:
        • Toggle MapView ↔ CameraView
-       • Fully SSR-safe via onMount-loaded components
-       • GH Pages compatible
-       • Minimal footprint (layout owns frame)
+       • Fully SSR-safe via onMount dynamic imports
+       • Zero static asset paths (GH Pages safe)
 ------------------------------------------------------------- -->
 
 <script>
@@ -12,14 +11,13 @@
 
   export let showCamera = false;
 
-  /* Lazy-loaded component handles */
   let MapView = null;
   let CameraView = null;
 
   let loaded = false;
 
   onMount(async () => {
-    // Dynamic imports only run in browser — SSR safe
+    // SSR-safe, only runs in browser
     const mapMod = await import("$lib/map/MapView.svelte");
     const camMod = await import("$lib/camera/CameraView.svelte");
 
@@ -29,11 +27,6 @@
     loaded = true;
   });
 </script>
-
-<!-- ------------------------------------------------------------
-     RENDER
-     If components not yet loaded → placeholder shell
-------------------------------------------------------------- -->
 
 {#if !loaded}
   <div class="loading-shell">Loading…</div>
@@ -46,10 +39,6 @@
 {/if}
 
 <style>
-  /* The parent layout defines the map/camera window.
-     This only ensures safe-area won't clip content if future
-     devices introduce new viewport insets. */
-
   .loading-shell {
     width: 100%;
     height: 100%;
@@ -59,11 +48,6 @@
 
     font-size: 1rem;
     opacity: 0.65;
-    color: var(--text);
-  }
-
-  :global(.layer-map) {
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
+    color: var(--text-primary);
   }
 </style>

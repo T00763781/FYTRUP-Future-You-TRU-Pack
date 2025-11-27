@@ -1,32 +1,27 @@
 <!-- ------------------------------------------------------------
-     FOOTERTRAY.SVELTE — FYTRUP Alpha12
-     PURPOSE:
-       • Permanent bottom "track" for ChatInput
-       • Drawer stops above this tray
-       • Handles safe-area inset and elevation
-       • Works on iOS Safari + Android Chrome + Desktop
+     FOOTERTRAY.SVELTE — FYTRUP Alpha12 (Stable Build)
 ------------------------------------------------------------- -->
 
 <script>
+  import { createEventDispatcher } from "svelte";
+  import ChatInput from "$lib/chat/ChatInput.svelte";
+
   export let showCamera = false;
 
-  // Events forwarded outwards to layout
-  import ChatInput from "$lib/chat/ChatInput.svelte";
+  const dispatch = createEventDispatcher();
 
   function handleSend(e) {
     dispatch("send", e.detail);
   }
+
   function handleToggleCamera() {
     dispatch("toggleCamera");
   }
-
-  import { createEventDispatcher } from "svelte";
-  const dispatch = createEventDispatcher();
 </script>
 
 <style>
   :global(:root) {
-    --tray-height: 80px; /* fixed, predictable */
+    --tray-height: 80px;
   }
 
   .tray-root {
@@ -44,7 +39,6 @@
 
     z-index: 50;
 
-    /* Background plate under ChatInput */
     background: linear-gradient(
       rgba(0, 70, 90, 0.12),
       rgba(0, 70, 90, 0.25)
@@ -56,7 +50,6 @@
     box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.25);
   }
 
-  /* Inner zone keeps ChatInput centered */
   .inner {
     width: 100%;
     max-width: 40rem;

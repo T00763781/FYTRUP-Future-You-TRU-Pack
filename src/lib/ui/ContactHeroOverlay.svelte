@@ -1,5 +1,6 @@
 <script>
   import { createEventDispatcher } from "svelte";
+  import { base } from "$app/paths";
 
   export let mate; // { id, name, full, avatar }
 
@@ -9,7 +10,6 @@
     dispatch("close");
   }
 
-  // Simple example description until you wire in real bios
   function description(id) {
     if (id === "wolfie") {
       return "Your first guide through campus, upbeat, always onboarding someone.";
@@ -18,7 +18,7 @@
   }
 
   function progressIcon(p) {
-    return `/icons/${p}-3.png`;
+    return `${base}/icons/${p}-3.png`;
   }
 
   function progressLabel(p) {
@@ -27,6 +27,12 @@
     if (p === 2) return "Two notes found";
     return "All notes found!";
   }
+
+  // Reactive: always recompute when `mate` changes
+  $: fullImg =
+    mate
+      ? `${base}${mate.full || mate.avatar}`
+      : "";
 </script>
 
 <style>
@@ -57,7 +63,6 @@
     gap: 2rem;
   }
 
-  /* LEFT: art */
   .art-wrap {
     flex: 0 0 40%;
     display: flex;
@@ -71,15 +76,12 @@
     object-fit: contain;
   }
 
-  /* RIGHT: content */
   .content {
     flex: 1 1 auto;
-
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     gap: 1.4rem;
-
     padding-top: 1rem;
   }
 
@@ -145,9 +147,6 @@
     height: 24px;
   }
 
-  /* ---------------------------------------
-     MOBILE BREAKPOINT
-  ---------------------------------------- */
   @media (max-width: 600px) {
     .overlay-inner {
       flex-direction: column;
@@ -172,12 +171,12 @@
 
 <div class="overlay">
   <div class="close-btn" on:click={close}>
-    <img src="/icons/back.png" alt="back" />
+    <img src={`${base}/icons/back.png`} alt="back" />
   </div>
 
   <div class="overlay-inner">
     <div class="art-wrap">
-      <img src={mate.full || mate.avatar} alt={mate.name} />
+      <img src={fullImg} alt={mate.name} />
     </div>
 
     <div class="content">

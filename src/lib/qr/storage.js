@@ -1,16 +1,35 @@
-// storage.js — localStorage tracking
-export function getAllNotes() {
+// storage.js — localStorage tracking (SSR-safe)
+import { browser } from "$app/environment";
+
+function safeGet() {
+  if (!browser) return [];
   try {
-    return JSON.parse(localStorage.getItem("fytrup-notes")||"[]");
-  } catch { return []; }
+    return JSON.parse(localStorage.getItem("fytrup-notes") || "[]");
+  } catch {
+    return [];
+  }
 }
+
+function safeSet(arr) {
+  if (!browser) return;
+  localStorage.setItem("fytrup-notes", JSON.stringify(arr));
+}
+
+export function getAllNotes() {
+  return safeGet();
+}
+
 export function hasNote(id) {
-  return getAllNotes().includes(id);
+  const arr = safeGet();
+  return arr.includes(id);
 }
+
 export function addNote(id) {
-  const arr=getAllNotes();
-  if(!arr.includes(id)) {
+  if (!browser) return;
+
+  const arr = safeGet();
+  if (!arr.includes(id)) {
     arr.push(id);
-    localStorage.setItem("fytrup-notes", JSON.stringify(arr));
+    safeSet(arr);
   }
 }

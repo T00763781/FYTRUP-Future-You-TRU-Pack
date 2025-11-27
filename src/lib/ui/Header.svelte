@@ -1,12 +1,17 @@
 <!-- ------------------------------------------------------------
      HEADER.SVELTE — TRU Brand Header + Contacts Button (LEFT)
+     • GH Pages base-safe
+     • Clean icon rendering
+     • Patched: pointer-events layering + z-index hardening
 ------------------------------------------------------------- -->
 
 <script>
   import { createEventDispatcher } from "svelte";
   import { cycleTheme } from "$lib/theme/store.js";
+  import { base } from "$app/paths";
 
   const dispatch = createEventDispatcher();
+  const contactsIcon = `${base}/icons/contacts.png`;
 
   function openContacts() {
     dispatch("toggleContacts");
@@ -49,17 +54,25 @@
     justify-content: space-between;
   }
 
-  /* Brand title */
+  /* Absolute-centered title container
+     Now pointer-events:none to prevent blocking left icon */
   .title {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+
+    pointer-events: none;
+  }
+
+  /* Click target re-enabled here */
+  .title-hit {
     display: flex;
     gap: 0.35rem;
     font-size: 1.55rem;
     line-height: 1;
-    cursor: pointer;
 
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    cursor: pointer;
     pointer-events: auto;
   }
 
@@ -68,7 +81,6 @@
   .t-tru   { color: var(--accent-green); }
   .t-path  { color: var(--accent-orange); }
 
-  /* Left contacts button */
   .contacts-btn {
     width: 34px;
     height: 34px;
@@ -84,16 +96,15 @@
 
     cursor: pointer;
     transition: background 0.15s ease;
-    z-index: 10;
+    z-index: 20; /* <-- PATCH: ensure button stays above centered text */
 
-    overflow: hidden;      /* trims any PNG padding */
+    overflow: hidden;
   }
 
   .contacts-btn:hover {
     background: rgba(255,255,255,0.20);
   }
 
-  /* ICON FIX — clean, edge-to-edge, no shadow, proper sizing */
   .contacts-btn img {
     width: 100%;
     height: 100%;
@@ -108,16 +119,12 @@
   }
 
   @media (max-width: 420px) {
-    .title {
+    .title-hit {
       font-size: 1.7rem;
     }
     .contacts-btn {
       width: 36px;
       height: 36px;
-    }
-    .contacts-btn img {
-      width: 100%;
-      height: 100%;
     }
   }
 </style>
@@ -127,18 +134,19 @@
 
     <!-- LEFT CONTACTS BUTTON -->
     <div class="contacts-btn" on:click={openContacts}>
-      <img src="/icons/contacts.png" alt="Contacts" />
+      <img src={contactsIcon} alt="Contacts" />
     </div>
 
     <!-- TRUE-CENTERED TITLE -->
-    <div class="title" on:click={cycleTheme}>
-      <span class="t-find">Find</span>
-      <span class="t-your">Your</span>
-      <span class="t-tru">TRU</span>
-      <span class="t-path">Path</span>
+    <div class="title">
+      <div class="title-hit" on:click={cycleTheme}>
+        <span class="t-find">Find</span>
+        <span class="t-your">Your</span>
+        <span class="t-tru">TRU</span>
+        <span class="t-path">Path</span>
+      </div>
     </div>
 
-    <!-- RIGHT SPACER (keeps symmetry) -->
     <div style="width:34px;"></div>
 
   </div>

@@ -1,8 +1,8 @@
 <!-- ------------------------------------------------------------
-   CHATINPUT.SVELTE — Alpha12 (Global fixed input bar)
-   • Always visible, outside chat drawer
-   • Send + Camera toggle
-   • GitHub pages safe via `base`
+   CHATINPUT.SVELTE — Alpha12
+   • Global fixed input bar
+   • Camera toggle + Send button
+   • Fully GitHub Pages safe via `base`
 ------------------------------------------------------------- -->
 
 <script>
@@ -15,18 +15,23 @@
   let message = "";
 
   function handleSend() {
-    if (!message.trim()) return;
-    dispatch("send", message.trim());
+    const txt = message.trim();
+    if (!txt) return;
+    dispatch("send", txt);
     message = "";
   }
 
   function toggleCamera() {
     dispatch("toggleCamera");
   }
+
+  // CASE-SAFE ICONS (must match /static/icons exactly)
+  const camOff  = `${base}/icons/Camera.png`;
+  const camOn   = `${base}/icons/Camera_selected.png`;
+  const sendBtn = `${base}/icons/send-icon.png`;
 </script>
 
 <style>
-  /* Fixed wrapper */
   .input-bar-wrap {
     position: absolute;
     bottom: 0;
@@ -34,13 +39,11 @@
     right: 0;
 
     z-index: 50;
-
     padding: 10px 0 calc(env(safe-area-inset-bottom) + 6px) 0;
 
     display: flex;
     justify-content: center;
-
-    background: transparent; /* no bar, only floating input */
+    background: transparent;
   }
 
   .input-bar {
@@ -84,7 +87,7 @@
     outline: none;
 
     font-size: 1rem;
-    color: var(--text);
+    color: var(--text-primary);
     padding: 0.15rem 0;
   }
 
@@ -101,13 +104,10 @@
 
 <div class="input-bar-wrap">
   <div class="input-bar">
-    
+
     <!-- Camera toggle -->
-    <button on:click={toggleCamera}>
-      <img
-        src={`${base}/icons/${showCamera ? "Camera_selected.png" : "Camera.png"}`}
-        alt="camera toggle"
-      />
+    <button on:click={toggleCamera} aria-label="Toggle camera">
+      <img src={showCamera ? camOn : camOff} alt="camera toggle" />
     </button>
 
     <!-- Text entry -->
@@ -118,8 +118,8 @@
     />
 
     <!-- Send -->
-    <button on:click={handleSend}>
-      <img src={`${base}/icons/send-icon.png`} alt="send" />
+    <button on:click={handleSend} aria-label="Send message">
+      <img src={sendBtn} alt="send" />
     </button>
 
   </div>
