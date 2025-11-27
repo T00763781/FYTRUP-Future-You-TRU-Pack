@@ -1,12 +1,21 @@
 import adapter from "@sveltejs/adapter-static";
+import { base } from "./src/lib/base-path.js";
 
-export default {
+/**
+ * FYTRUP — Alpha12 / GitHub Pages–compatible SvelteKit config
+ *
+ * - Uses adapter-static for GitHub Pages
+ * - Base path is injected dynamically via `src/lib/base-path.js`
+ * - Allows GitHub Actions to deploy Alpha12 to a subpath
+ * - Keeps local dev clean (`base = ""`)
+ */
+
+const config = {
   kit: {
     adapter: adapter(),
 
-    // No base path — Alpha12 runs clean in dev and can be configured later for production.
     paths: {
-      base: ""
+      base
     },
 
     prerender: {
@@ -14,9 +23,11 @@ export default {
       handleHttpError: "warn"
     },
 
-    // Disable service worker auto-registration behavior.
+    // FYTRUP does not use SvelteKit's default service worker
     serviceWorker: {
       register: false
     }
   }
 };
+
+export default config;
